@@ -41,13 +41,6 @@ function draw_border(){
 
     let vert_offset = 0
 
-    if(counter == 0){    
-        let COLOR = format_rgb_color_string(color_r, color_g, color_b)
-        easel.fillStyle = COLOR
-        initialize(easel, wid, hei, SIZE, vert_offset)
-    }
-
-
     //draw_edges_all_shift(easel, wid, hei, SIZE, vert_offset, COLOR_PACE)
     draw_edge_tour_point(easel, wid, hei, SIZE, vert_offset)
 
@@ -66,8 +59,10 @@ function initialize(easel, wid, hei, size, vert_offset){
     //-- Perimeter Tour  --------------------------------------
 
 function draw_edge_tour_point(easel, wid, hei, size, vert_offset){
-    max_period = 2 * (wid + hei) / size
+    max_period = 2 * (wid + hei) / size + 1
 
+    // Initializes the entire border to be a base color we're going to draw over by replacing
+    // the elements at particular indices
     if(under_colors.length < max_period){
         easel.fillStyle = format_rgb_color_string(color_r, color_g, color_b)
         for(let i = 0; i < max_period; i++){
@@ -75,31 +70,13 @@ function draw_edge_tour_point(easel, wid, hei, size, vert_offset){
         }
     }
 
-    let prop = (counter % max_period) / max_period;
+    // Iterate the color change to get the next one and assign it to the current head of the color train
+    iterate_colors();
+    under_colors[counter % max_period] = format_rgb_color_string(color_r, color_g, color_b);
 
-    easel.fillStyle = under_colors[max_period - 1]
-    
+    // Draw the under-layer using the colors stored in under_colors previously (if you don't, it
+    // gets wiped on the next call to draw so you have to redraw what has been drawn)
     draw_edges_all_shift(easel, wid, hei, size, vert_offset, -1);
-
-    iterate_colors()
-    easel.fillStyle = format_rgb_color_string(color_r, color_g, color_b)
-
-    under_colors[counter % max_period] = easel.fillStyle
-
-    let first_half = prop <= .50
-    prop -= first_half ? 0 : .5
-    let horizontal = (prop / .5) <= (wid / (wid + hei))
-
-    if(horizontal){
-        let x = prop * (wid + hei) * 2
-        let y = first_half ? vert_offset : (hei - size);
-        easel.fillRect(first_half ? x : (wid - x - size), y, size, size)
-    }
-    else{
-        let x = first_half ? wid - size : 0;
-        let y = prop * 2 * (wid + hei) - wid
-        easel.fillRect(x, first_half ? y + vert_offset : (hei - y), size, size)
-    }
 
 }
 
@@ -152,8 +129,9 @@ function draw_edge_all_shift(x_start, y_start, width, height, easel, color_pace,
 
         let col = easel.fillStyle
 
+        // This is used to contextually draw from under_colors if we have assigned values to that array
         if(draw_index < under_colors.length){
-            easel.fillStyle = under_colors[draw_index]
+            easel.fillStyle = under_colors[draw_index % under_colors.length]
         }
 
         easel.fillRect(x, y, block, block)

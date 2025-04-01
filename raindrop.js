@@ -24,11 +24,19 @@ let darken_rate = 11;            //  Number of iteration calls to make before da
 let darken_amount = .1;        //  On scale 0-1, alpha value of black color to overlay in darkening
 let block_size = 2            //  Not used, was for calculating size based on canvas wid/hei
 
-
+//This sets up our iterateProcessing function to be called every 'speed' milliseconds
+//  Can add an argument after speed that is the id of your canvas object to specify where to draw on
+window.setInterval(iterateProcessing, speed, "canvas", document)
 
 // Sets up the initial canvas background and some default values we need for later
 function setCanvas(name, doc){
   canvas = doc.getElementById(name);
+
+  if (canvas.width != window.innerWidth){
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+  }
+
   easel = canvas.getContext("2d");
 
   wid = canvas.width
@@ -194,8 +202,5 @@ function addColorDrop(name, doc){
   queue.iteration_cap.push(Math.random() * iteration_variance + iteration_limit)
 }
 
-//This sets up our iterateProcessing function to be called every 'speed' milliseconds
-//  Can add an argument after speed that is the id of your canvas object to specify where to draw on
-window.setInterval(iterateProcessing, speed, "canvas", document)
 
 //window.onload = adjustCanvas()
