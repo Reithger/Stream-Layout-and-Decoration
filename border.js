@@ -23,6 +23,9 @@ setInterval(draw_border, 60);
 function draw_border(){
     let canvas = document.getElementById("canvas")
 
+    let body = document.getElementById("body")
+
+    let type = document.styleSheets[0].cssRules[0].style.getPropertyValue("font-family")
 
     let wid = window.innerWidth
     let hei = window.innerHeight
@@ -36,13 +39,26 @@ function draw_border(){
 
     let SIZE = 8
 
-
     easel.lineWidth = 1
 
     let vert_offset = 0
 
-    //draw_edges_all_shift(easel, wid, hei, SIZE, vert_offset, COLOR_PACE)
-    draw_edge_tour_point(easel, wid, hei, SIZE, vert_offset)
+    switch(type){
+        case 'rainbow-tour':
+            draw_edge_tour_point(easel, wid, hei, SIZE, vert_offset)
+            break;
+        case 'rainbow-pulse':
+            draw_edges_all_shift(easel, wid, hei, SIZE, vert_offset, COLOR_PACE)
+            break;
+        case 'runescape':
+            break;
+        default:
+            draw_edge_tour_point(easel, wid, hei, SIZE, vert_offset)
+            break;
+    }
+
+    //
+    //draw_edge_tour_point(easel, wid, hei, SIZE, vert_offset)
 
     counter += 1;
 }
@@ -56,10 +72,22 @@ function initialize(easel, wid, hei, size, vert_offset){
 
 //---  Border Draw Types   --------------------------------------------------------------------
 
+    //-- Runescape Chat Border  -------------------------------
+
+//emulating the chat box style seen here: https://oldschool.runescape.wiki/images/Chat_Interface.png?cef8d
+//Edges are a repeating pattern approximately eight times as long as the edges are thick
+//Corners have faux-metal plating
+//Inside edge is varying strength dark, outer edge is varying strength light highlight (for top and left)
+//Outer edge approximately increases in brightness along each pattern (for top and left)
+//Define a rule for generating each segment of the border in 16x16 blocks that we can resize
+function draw_runescape_edge(easel, wid, hei, size){
+
+}
+
     //-- Perimeter Tour  --------------------------------------
 
 function draw_edge_tour_point(easel, wid, hei, size, vert_offset){
-    max_period = 2 * (wid + hei) / size + 1
+    max_period = (2 * (wid + hei) / size) + 1
 
     // Initializes the entire border to be a base color we're going to draw over by replacing
     // the elements at particular indices

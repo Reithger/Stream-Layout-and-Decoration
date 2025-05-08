@@ -16,10 +16,10 @@ let queue = {           //Object containing queues that, by index, synchronize t
 }
 
 //Constant values I define to control specific behaviors of the art effect
-let iteration_limit = 96.0      //  Base value of circle size that gets drawn
+let iteration_limit = 64.0      //  Base value of circle size that gets drawn
 let iteration_variance = 64;    //  Degree of variance from base value
-let speed = 75                 //  In ms, how quickly new iterations get called
-let new_color_rate = 23;        //  Number of iteration calls to make before adding a new color drop
+let speed = 100                 //  In ms, how quickly new iterations get called
+let new_color_rate = 29;        //  Number of iteration calls to make before adding a new color drop
 let darken_rate = 11;            //  Number of iteration calls to make before darkening the screen a lil
 let darken_amount = .1;        //  On scale 0-1, alpha value of black color to overlay in darkening
 let block_size = 2            //  Not used, was for calculating size based on canvas wid/hei
