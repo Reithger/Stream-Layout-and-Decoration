@@ -20,7 +20,7 @@ let COLOR_PACE = 300;
 
 let color_block = []
 
-setInterval(draw_border, 60);
+setInterval(draw_border, 30);
 
 function draw_border(){
     let canvas = document.getElementById("canvas")
@@ -32,7 +32,7 @@ function draw_border(){
     let wid = window.innerWidth
     let hei = window.innerHeight
 
-    if(canvas.wid != wid){
+    if(canvas.width != wid || canvas.height != hei){
         canvas.width = wid
         canvas.height = hei
     }
@@ -99,9 +99,30 @@ function initialize(easel, wid, hei, size, vert_offset){
 //  inside-side that doesn't have the hard brown line drawn through it, lighten the pixels on the inside of the embellishment area
 //Use a slightly brighter version of the perimeter color for the 45 degree line
 
+let shadow_values = [];
+
 //Interior region is papyrus-scroll texture with rapid gradient from dark border to lighter taupe center
 function draw_runescape_edge(canvas, easel, wid, hei, size){
-    size = 3
+    size = 2
+
+    easel.fillStyle = format_rgb_color_string(210, 193, 156);
+    easel.fillRect(0, 0, wid, hei);
+    if(shadow_values.length == 0){
+        for(let i = 0; i < 7; i++){
+            shadow_values.push(Math.random() / 15 + .03);
+        }
+    }
+
+    for(let i = 0; i < shadow_values.length; i++){
+        easel.fillStyle = format_rgb_color_string(0, 0, 0, shadow_values[i]);
+        let move = i * size;
+        let amount = size * 7 + move;
+        easel.fillRect(0, 0, wid, amount);
+        easel.fillRect(0, amount, amount, hei - amount);
+        easel.fillRect(wid - amount, amount, amount, hei);
+        easel.fillRect(amount, hei - amount, wid - amount * 2, amount);
+    }
+
     if(color_block.length < 5){
         initialize_runescape_border();
     }
@@ -112,36 +133,138 @@ function draw_runescape_edge(canvas, easel, wid, hei, size){
     for(let i = 0; i < 7; i++){
         for(let j = 0; j < 32; j++){
             easel.fillStyle = color_block[i][j]
+            // Top Row
             easel.fillRect(corner_displacement + j * size, i * size, size, size)
-            easel.fillRect(wid - i * size, corner_displacement + j * size, size, size)
-            easel.fillRect(wid - j * size - corner_displacement, hei - i * size, size, size)
+            // Left Column
             easel.fillRect(i * size, hei - j * size - corner_displacement, size, size)
+            
+            if(i != 6){
+                easel.fillStyle = color_block[6 - i][j];
+                // Right Column
+                easel.fillRect(wid - i * size - size, corner_displacement + j * size, size, size)
+                // Bottom Row
+                easel.fillRect(wid - j * size - corner_displacement, hei - i * size - size, size, size)
+            }
         }
     }
     
     let block_hei = color_block.length * size
     let block_wid = (color_block[0].length - 1) * size
     // Draws the top and bottom horizontal sections by copying the template image drawn in by the above code
-    for(let i = 0; i < (wid - 2 * corner_displacement) / block_wid; i += 1){
+    for(let i = 0; i < (wid - 2 * corner_displacement) / block_wid + 1; i += 1){
         // References its own canvas to copy the template pattern along the row
-        easel.drawImage(canvas, corner_displacement, 0, block_wid, block_hei, i * block_wid + corner_displacement, 0, block_wid, block_hei)
-        easel.drawImage(canvas, wid - corner_displacement - block_wid, hei - block_hei, block_wid, block_hei, wid - (i + 1) * block_wid - corner_displacement, hei - block_hei, block_wid, block_hei)
+        // Top Row
+        let x_ref = corner_displacement;
+        let y_ref = 0;
+        let x_tar = i * block_wid + corner_displacement;
+        let y_tar = 0;
+        easel.drawImage(canvas, x_ref, y_ref, block_wid, block_hei, x_tar, y_tar, block_wid, block_hei)
+        // Bottom Row
+        x_ref =  wid - corner_displacement - block_wid;
+        y_ref = hei - block_hei;
+        x_tar = wid - (i + 1) * block_wid - corner_displacement;
+        y_tar = hei - block_hei;
+        easel.drawImage(canvas, x_ref, y_ref, block_wid, block_hei, x_tar, y_tar, block_wid, block_hei)
     }
     // Draws the left and right vertical sections by copying the template image drawn in by the above above code
-    for(let i = 0; i < (hei - 2 * corner_displacement) / block_wid; i += 1){
+    for(let i = 0; i < (hei - 2 * corner_displacement) / block_wid + 1; i += 1){
         // References its own canvas to copy the template pattern along the row
-        easel.drawImage(canvas, wid - corner_displacement, corner_displacement, block_hei, block_wid, wid - block_hei, i * block_wid + corner_displacement, block_hei, block_wid)
-        easel.drawImage(canvas, 0, hei - corner_displacement - block_wid, block_hei, block_wid, 0, hei - (i + 1) * block_wid - corner_displacement, block_hei, block_wid)
+        // Right Column
+        let x_ref = wid - corner_displacement;
+        let y_ref = corner_displacement;
+        let x_tar = wid - block_hei;
+        let y_tar = i * block_wid + corner_displacement;
+        easel.drawImage(canvas, x_ref, y_ref, block_hei, block_wid, x_tar,y_tar, block_hei, block_wid)
+        // Left Column
+        x_ref = 0;
+        y_ref = hei - corner_displacement - block_wid;
+        x_tar = 0;
+        y_tar = hei - (i + 1) * block_wid - corner_displacement
+        easel.drawImage(canvas, x_ref, y_ref, block_hei, block_wid, x_tar, y_tar, block_hei, block_wid)
     }
 
     // Draw the corner embellishments over the corner spaces
+    let corner_block = initialize_runescape_corner();
+
+    // Draws the contents of corner_block to each of the four corners of the border, appropriately rotated for each
+    for(let i = 0; i < corner_block.length; i++){
+        for(let j = 0; j < corner_block[i].length; j++){
+            if(corner_block[i][j] != undefined){
+                easel.fillStyle = corner_block[i][j];
+                // Top Left
+                easel.fillRect(j * size + size, i * size, size, size);
+                // Top Right
+                easel.fillRect(wid - i * size - size, j * size + size, size, size);
+                // Bottom Right
+                easel.fillRect(wid - j * size - size * 2, hei - i * size - size, size, size)
+                // Bottom Left
+                easel.fillRect(i * size, hei - j * size - size * 2, size, size)
+            }
+        }
+    }
+
+}
+
+function initialize_runescape_corner(){
+    let corner_block = [[], [], [], [], [], [], [], [], []];
+
+    // Initiate it to a square 2d array
+    for(let i = 0; i < corner_block.length; i++){
+        for(let j = 0; j < corner_block.length; j++){
+            corner_block[i][j] = undefined;
+        }
+    }
+
+    // Draw top and left lines of solid colors (top is dark brown, left is bright reflective)
+    for(let i = 0; i < corner_block.length; i++){
+        corner_block[i][0] = format_rgb_color_string(147, 137, 144);
+        corner_block[0][i] = format_rgb_color_string(51, 38, 25);
+    }
+
+    // Draws the interior of the corner embellishment and some of the brown outlining
+    for(let i = 0; i < 2; i++){
+        for(let j = 1; j < corner_block.length - 1; j++){
+            use = i == 0 ? format_rgb_color_string(174, 169, 147) : format_rgb_color_string(147, 137, 114);
+            corner_block[j][i] = use;
+            corner_block[i + 1][j] = use;
+        }
+        corner_block[corner_block.length - 1][i] = format_rgb_color_string(72, 58, 39);
+        corner_block[i + 1][corner_block.length - 2] = format_rgb_color_string(72, 58, 39);
+    }
+
+    let center = Math.floor(corner_block.length / 2) - 1;
+
+    for(let i = 0; i < 3; i++){
+        for(let j = 0; j < 4; j++){
+            corner_block[center + i][center + j - 1] = format_rgb_color_string(119, 112, 94);
+            corner_block[center + j][center + i - 1] = format_rgb_color_string(119, 112, 94);
+        }
+    }
+
+    // Draws the diagonal portion of the brown outlining
+    for(let i = 0; i < 6; i++){
+        corner_block[3 + i][6 - i] = format_rgb_color_string(72, 58, 39);
+    }
+
+    // Top left of inside embellishment bolt
+    corner_block[center][center-1] = format_rgb_color_string(179, 176, 168);
+    // Bottom left
+    corner_block[center+1][center-1] = format_rgb_color_string(96, 90, 74);
+    // Top right
+    corner_block[center][center] = format_rgb_color_string(179, 176, 168);
+    // Bottom right
+    corner_block[center+1][center] = format_rgb_color_string(72, 58, 39);
+
+    corner_block[center + 3][center + 2] = format_rgb_color_string(42, 36, 21);
+
+    return corner_block;
 }
 
 function initialize_runescape_border(){
     color_block = [[], [], [], [], [], [], []]
     draw_soft_gradient(color_block, 0, [51, 38, 25], [51, 38, 25])
     draw_soft_gradient(color_block, 1, [96, 90, 74], [147, 137, 114])
-    draw_soft_gradient(color_block, 6, [49, 41, 27], [42, 36, 21])
+    draw_soft_gradient(color_block, 6, [65, 56, 39], [42, 36, 21])
 
     // Replace the below code with the spatter pattern function
     for(let i = 2; i < 6; i++){
