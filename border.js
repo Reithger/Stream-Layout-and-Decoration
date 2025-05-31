@@ -53,7 +53,10 @@ function draw_border(){
             draw_edges_all_shift(easel, wid, hei, SIZE, vert_offset, COLOR_PACE)
             break;
         case 'runescape':
-            draw_runescape_edge(canvas, easel, wid, hei, SIZE)
+            draw_runescape_edge(canvas, easel, wid, hei, SIZE, true)
+            break;
+        case 'runescape_no':
+            draw_runescape_edge(canvas, easel, wid, hei, SIZE, false)
             break;
         default:
             draw_edge_tour_point(easel, wid, hei, SIZE, vert_offset)
@@ -102,25 +105,28 @@ function initialize(easel, wid, hei, size, vert_offset){
 let shadow_values = [];
 
 //Interior region is papyrus-scroll texture with rapid gradient from dark border to lighter taupe center
-function draw_runescape_edge(canvas, easel, wid, hei, size){
+function draw_runescape_edge(canvas, easel, wid, hei, size, show_backing){
     size = 2
 
-    easel.fillStyle = format_rgb_color_string(210, 193, 156);
-    easel.fillRect(0, 0, wid, hei);
-    if(shadow_values.length == 0){
-        for(let i = 0; i < 7; i++){
-            shadow_values.push(Math.random() / 15 + .03);
+    if(show_backing){
+        //easel.fillStyle = format_rgb_color_string(210, 193, 156);
+        easel.fillStyle = format_rgb_color_string(178, 163, 132);
+        easel.fillRect(0, 0, wid, hei);
+        if(shadow_values.length == 0){
+            for(let i = 0; i < 7; i++){
+                shadow_values.push(Math.random() / 15 + .03);
+            }
         }
-    }
 
-    for(let i = 0; i < shadow_values.length; i++){
-        easel.fillStyle = format_rgb_color_string(0, 0, 0, shadow_values[i]);
-        let move = i * size;
-        let amount = size * 7 + move;
-        easel.fillRect(0, 0, wid, amount);
-        easel.fillRect(0, amount, amount, hei - amount);
-        easel.fillRect(wid - amount, amount, amount, hei);
-        easel.fillRect(amount, hei - amount, wid - amount * 2, amount);
+        for(let i = 0; i < shadow_values.length; i++){
+            easel.fillStyle = format_rgb_color_string(0, 0, 0, shadow_values[i]);
+            let move = i * size;
+            let amount = size * 7 + move;
+            easel.fillRect(0, 0, wid, amount);
+            easel.fillRect(0, amount, amount, hei - amount);
+            easel.fillRect(wid - amount, amount, amount, hei);
+            easel.fillRect(amount, hei - amount, wid - amount * 2, amount);
+        }
     }
 
     if(color_block.length < 5){
@@ -266,16 +272,133 @@ function initialize_runescape_border(){
     draw_soft_gradient(color_block, 1, [96, 90, 74], [147, 137, 114])
     draw_soft_gradient(color_block, 6, [65, 56, 39], [42, 36, 21])
 
-    // Replace the below code with the spatter pattern function
     for(let i = 2; i < 6; i++){
         for(let j = 0; j < 32; j++){
-            color_block[i][j] = format_rgb_color_string(79 + i * 5, 72 + i * 5, 53 + i * 5)
+            color_block[i][j] = undefined; //format_rgb_color_string(79 + i * 5, 72 + i * 5, 53 + i * 5)
         }
     }
+    
+    draw_spatter_pattern(color_block, 2, 5);
+    
 }
 
-function draw_spatter_pattern(colors){
+// Pick out 4-5 x,y spots in the space to have a starter color
+// Progressively select adjacent, uncolored spots next to a set color to have that same color
+// Slightly favor horizontal movement over vertical for rough-banding
+// Start colors can be brightened/darkened versions of base color?
+//  Or another 'define highest/lowest' and then blend in-betweens
+// 87, 80, 64
+// 79, 72, 53
+// 82, 75, 59
+// 96, 90, 74
 
+function draw_spatter_pattern(colors, start_row, end_row){
+    let num_colors = 5;
+    //let start_colors = derive_brightness_colors([87, 80, 64], num_colors);
+    let start_colors = derive_brightness_colors([82, 75, 59], num_colors);
+
+    for(let i = 0; i < start_colors.length; i++){
+        let x = Math.floor(Math.random() * (end_row - start_row + 1)) + start_row;
+        let y = Math.floor(Math.random() * colors[start_row].length);
+        for(let j = 0; j < 3; j++){
+            while(colors[x][y] != undefined){
+                x = Math.floor(Math.random() * (end_row - start_row) + 1) + start_row;
+                y = Math.floor(Math.random() * colors[start_row].length);
+            }
+            colors[x][y] = start_colors[i];
+        }
+    }
+
+    while(check_undefined(colors, start_row, end_row)){
+        let color_change = start_colors[Math.floor(Math.random() * start_colors.length)];
+        let position = find_color_pick_random(colors, color_change, start_row, end_row);
+        let x = position[0];
+        let y = position[1];
+        if(Math.random() < .8){
+            if(y-1 >= 0 && colors[x][y-1] == undefined){
+                colors[x][y-1] = color_change;
+            }
+            else if(y + 1 < colors[start_row].length && colors[x][y+1] == undefined){
+                colors[x][y+1] = color_change;
+            }
+            else if(x - 1 >= start_row && colors[x-1][y] == undefined){
+                colors[x-1][y] = color_change
+            }
+            else if(x + 1 <= end_row && colors[x + 1][y] == undefined){
+                colors[x + 1][y] = color_change
+            }
+        }
+        else{
+            if(x - 1 >= start_row && colors[x-1][y] == undefined){
+                colors[x-1][y] = color_change
+            }
+            else if(x + 1 <= end_row && colors[x + 1][y] == undefined){
+                colors[x + 1][y] = color_change
+            }
+            else if(y-1 >= 0 && colors[x][y-1] == undefined){
+                colors[x][y-1] = color_change;
+            }
+            else if(y + 1 < colors[start_row].length && colors[x][y+1] == undefined){
+                colors[x][y+1] = color_change;
+            }
+        }
+    }
+
+    for(let i = start_row; i <= end_row; i++){
+        for(let j = 0; j < colors[i].length; j++){
+            let col = colors[i][j];
+            colors[i][j] = format_rgb_color_string(col[0], col[1], col[2]);
+        }
+    }
+
+}
+
+function find_color_pick_random(colors, key_color, start_row, end_row){
+    let positions = [];
+    for(let i = start_row; i <= end_row; i++){
+        for(let j = 0; j < colors[i].length; j++){
+            if(colors[i][j] != undefined && compare_lists(colors[i][j], key_color)){
+                positions.push([i, j]);
+            }
+        }
+    }
+    return positions[Math.floor(Math.random() * positions.length)];
+}
+
+function compare_lists(list_one, list_two){
+    if(list_one.length != list_two.length){
+        return false;
+    }
+    for(let i = 0; i < list_one.length; i++){
+        if(list_one[i] != list_two[i]){
+            return false;
+        }
+    }
+    return true;
+}
+
+function check_undefined(colors,start_row, end_row){
+    for(let i = start_row; i <= end_row; i++){
+        for(let j = 0; j < colors[i].length; j++){
+            if(colors[i][j] == undefined){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function derive_brightness_colors(start_color, num_colors){
+    let out_colors = [start_color];
+    for(let i = 0; i < num_colors; i++){
+        let new_color = [start_color[0], start_color[1], start_color[2]];
+        for(let j = 0; j < 3; j++){
+            let adj = .02 * ((i / 2) + 1);
+            new_color[j] = new_color[j] * (i % 2 == 0 ? 1 + adj : 1 - adj);
+        }
+        out_colors.push(new_color);
+    }
+    return out_colors;
 }
 
 function draw_soft_gradient(colors, row, start_color, end_color){
