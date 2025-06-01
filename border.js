@@ -19,6 +19,7 @@ let under_colors = []
 let COLOR_PACE = 300;
 
 let color_block = []
+let shadow_values = [];
 
 setInterval(draw_border, 30);
 
@@ -102,31 +103,13 @@ function initialize(easel, wid, hei, size, vert_offset){
 //  inside-side that doesn't have the hard brown line drawn through it, lighten the pixels on the inside of the embellishment area
 //Use a slightly brighter version of the perimeter color for the 45 degree line
 
-let shadow_values = [];
 
 //Interior region is papyrus-scroll texture with rapid gradient from dark border to lighter taupe center
 function draw_runescape_edge(canvas, easel, wid, hei, size, show_backing){
     size = 2
 
     if(show_backing){
-        //easel.fillStyle = format_rgb_color_string(210, 193, 156);
-        easel.fillStyle = format_rgb_color_string(178, 163, 132);
-        easel.fillRect(0, 0, wid, hei);
-        if(shadow_values.length == 0){
-            for(let i = 0; i < 7; i++){
-                shadow_values.push(Math.random() / 15 + .03);
-            }
-        }
-
-        for(let i = 0; i < shadow_values.length; i++){
-            easel.fillStyle = format_rgb_color_string(0, 0, 0, shadow_values[i]);
-            let move = i * size;
-            let amount = size * 7 + move;
-            easel.fillRect(0, 0, wid, amount);
-            easel.fillRect(0, amount, amount, hei - amount);
-            easel.fillRect(wid - amount, amount, amount, hei);
-            easel.fillRect(amount, hei - amount, wid - amount * 2, amount);
-        }
+        draw_runescape_backing(easel, wid, hei, size);
     }
 
     if(color_block.length < 5){
@@ -209,6 +192,60 @@ function draw_runescape_edge(canvas, easel, wid, hei, size, show_backing){
         }
     }
 
+}
+
+function draw_runescape_backing(easel, wid, hei, size){
+    //easel.fillStyle = format_rgb_color_string(210, 193, 156);
+    // Setup; put down baseline papyrus color and setup top/left shadow lines
+    let color_choice = format_rgb_color_string(216, 196, 157);
+    //let color_choice = format_rgb_color_string(255, 255, 255);
+    //let color_choice = format_rgb_color_string(178, 163, 132);
+    easel.fillStyle = color_choice;
+    easel.fillRect(0, 0, wid, hei);
+
+    if(shadow_values.length == 0){
+        for(let i = 0; i < 7; i++){
+            shadow_values.push(Math.random() / 20 + .05);
+        }
+    }
+
+    //let gradient = easel.createConicGradient(0, wid/2, hei/2);
+
+    let x_scale = wid > hei ? wid / hei : 1;
+    let y_scale = wid > hei ? 1 : hei / wid;
+
+    easel.lineWidth = 15;
+    easel.fillStyle = "black";
+
+    let center_x = Math.floor(wid / (2 * x_scale)) + (wid > hei ? wid / (3 * x_scale) : 0);
+    let center_y = Math.floor(hei / (2 * y_scale)) - (wid >= hei ? 0 : hei / (3 * y_scale));
+    let gradient = easel.createRadialGradient(center_x, center_y, 5, center_x, center_y, wid > hei ? hei : wid);
+
+    gradient.addColorStop(0, color_choice);
+    //gradient.addColorStop(.6, format_rgb_color_string(172, 157, 129));
+    //gradient.addColorStop(.8, format_rgb_color_string(172, 157, 129));
+    gradient.addColorStop(1, format_rgb_color_string(172, 157, 129));
+    //gradient.addColorStop(1, format_rgb_color_string(178, 163, 132));
+    //gradient.addColorStop(1, format_rgb_color_string(255, 255, 255));
+    //gradient.addColorStop(1, color_choice);
+
+    easel.fillStyle = gradient;
+
+    easel.scale(x_scale, y_scale);
+
+    easel.fillRect(0, 0, wid, hei);
+
+    easel.setTransform(1, 0, 0, 1, 0, 0);
+
+    for(let i = 0; i < shadow_values.length; i++){
+        easel.fillStyle = format_rgb_color_string(0, 0, 0, shadow_values[i]);
+        let move = i * size;
+        let amount = size * 7 + move;
+        easel.fillRect(0, 0, wid, amount);
+        easel.fillRect(0, amount, amount, hei - amount);
+        easel.fillRect(wid - amount * 3 / 4, amount, amount, hei);
+        easel.fillRect(amount, hei - amount * 3 / 4, wid - amount * 7 / 4, amount);
+    }
 }
 
 function initialize_runescape_corner(){
