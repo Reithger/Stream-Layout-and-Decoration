@@ -130,13 +130,13 @@ function draw_flag_backing(easel, wid, hei, size, colors){
 
     //cap = cap * 2;
 
-    let num_bars = Math.floor((cap + cap_add) / colors.length) + 1;
+    let num_bars = Math.floor((cap + cap_add) / colors.length) + 2;
     num_bars *= colors.length;
     
 
     for(let i = 0; i < num_bars; i++){
         easel.fillStyle = colors[i % colors.length];
-        let x = (i * use_wid + counter * 8) % (num_bars * use_wid + use_wid) - use_wid;
+        let x = i * use_wid + ((counter) % (colors.length * use_wid)) - time_on_screen * 3 / 2;
         let y = -x - use_wid;
         easel.fillRect(x, y, use_wid, hei + use_wid * 2 + i * use_wid);
     }
@@ -164,9 +164,6 @@ function draw_runescape_backing(easel, wid, hei, size){
 
     let x_scale = wid > hei ? wid / hei : 1;
     let y_scale = wid > hei ? 1 : hei / wid;
-
-    easel.lineWidth = 15;
-    easel.fillStyle = "black";
 
     let center_x = Math.floor(wid / (2 * x_scale)) + (wid > hei ? wid / (3 * x_scale) : 0);
     let center_y = Math.floor(hei / (2 * y_scale)) - (wid >= hei ? 0 : hei / (3 * y_scale));
