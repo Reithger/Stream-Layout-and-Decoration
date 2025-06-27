@@ -36,7 +36,18 @@ let lego_size = 3;
 
 let color_block = [];
 let corner_block = [];
+
+//-- Variables for Backgrounds  -------------------------------
+
 let shadow_values = [];
+
+let set_lego_col = undefined;
+
+let lego_color_refresh = 80;
+
+let next_lego_col = undefined;
+
+let bool_lego_shift = false;
 
 //-- Variables for Flag Background  ---------------------------
 
@@ -45,6 +56,8 @@ let rainbow = ["red", "orange", "yellow", "green", "blue", "purple"];
 let trans = ["cyan", "pink", "white", "pink", "cyan"];
 
 let lesbian = [];
+
+
 
 setInterval(draw_border, 30);
 
@@ -86,6 +99,21 @@ function draw_border(){
             break;
         case 'transbian':
             draw_flag_backing(easel, wid, hei, 12, mix_arrays(rainbow, trans));
+            break;
+        case 'lego':
+            draw_lego_backing(canvas, easel, wid, hei, 5, undefined);
+            break;
+        case 'lego_g':
+            draw_lego_backing(canvas, easel, wid, hei, 5, [34, 121, 64]);
+            break;
+        case 'lego_r':
+            draw_lego_backing(canvas, easel, wid, hei, 5, [201, 26, 10]);
+            break;
+        case 'lego_c':
+            draw_lego_backing(canvas, easel, wid, hei, 5, [54, 174, 190]);
+            break;
+        case 'lego_b':
+            draw_lego_backing(canvas, easel, wid, hei, 5, [0, 86, 191]);
             break;
         default:
             break;
@@ -207,6 +235,130 @@ function draw_runescape_backing(easel, wid, hei, size){
         easel.fillRect(wid - amount * 3 / 4, amount, amount, hei);
         easel.fillRect(amount, hei - amount * 3 / 4, wid - amount * 7 / 4, amount);
     }
+}
+
+//--  Lego Style Backing   ------------------------------------
+
+function draw_lego_backing(canvas, easel, wid, hei, size, col = undefined){
+    let brick_size = 3;
+
+    let base_pattern_size = 5;
+
+    if(set_lego_col == undefined){
+        set_lego_col = lego_colors[Math.floor(Math.random() * lego_colors.length)];
+        bool_lego_shift = false;
+    }
+
+    // Pick the color we're using; if color is not hard-set in the arguments, use the random pick from set_lego_col above
+    let color_use = (col == undefined) ? set_lego_col : col;
+
+    draw_lego_base_backing(canvas, easel, wid, hei, size, color_use, brick_size, base_pattern_size);
+
+    // -- All of the below is for the color shifting, not used if we have a manually set color
+    
+    // -- For some reason this isn't working, it does it once and then never resets for the next instance of color changing
+    // -- -- Gotta figure this out but also the current tile change effect looks kinda ass so it's not a big deal
+
+    let time_take = 4;
+
+    if(col == undefined){
+        if((counter % (lego_color_refresh * time_take)) == 0){
+            if(!bool_lego_shift){
+                next_lego_col = lego_colors[Math.floor(Math.random() * lego_colors.length)];
+                bool_lego_shift = true;
+            }
+            else{
+                bool_lego_shift = false;
+                set_lego_col = next_lego_col;
+                next_lego_col = [];
+            }
+        }
+
+        if(bool_lego_shift){
+            draw_lego_tile_fill(canvas, easel, wid, hei, size, next_lego_col, brick_size, 3, time_take);
+        }
+    }
+}
+
+function draw_lego_base_backing(canvas, easel, wid, hei, size, col, brick_size, base_pattern_size){
+    // Set the basic color
+    easel.fillStyle = format_rgb_color_string_arr(col);
+    // Calculates how large a single 'tile' will be that we copy and repaste for efficiency
+    let brick_total_size = size * brick_size * base_pattern_size;
+    // Draws the backdrop for the 'tile' of a solid color in the bottom right corner; we draw the lighter pips next
+    easel.fillRect(wid - brick_total_size, hei - brick_total_size, brick_total_size, brick_total_size);
+
+    // Note: we draw in the bottom right corner so that if we do the color shifting bricks later, it can draw in the top-left easily
+    // The brick-placement starts in the top-left so it should be more convenient doing that eventually
+
+    // Set the lightened highlight color
+    easel.fillStyle = format_rgb_color_string_arr(lighten(col));
+
+    // Draw the pips in the center of each individual 3x3 lego brick
+    for(let i = 0; i < base_pattern_size; i++){
+        for(let j = 0; j < base_pattern_size; j++){
+            easel.fillRect(wid - brick_total_size + size + i * size * brick_size, hei - brick_total_size + size + j * size * brick_size, size, size);
+        }
+    }
+
+    // For convenience we adjust the brick_size to now refer to the 'tile' size
+    brick_size *= base_pattern_size;
+
+    // Copy the 'tile' in the bottom right corner to cover the entire border background space
+    for(let i = 0; i < wid / size; i++){
+        for(let j = 0; j < hei / size; j++){
+            easel.drawImage(canvas, wid - brick_total_size, hei - brick_total_size, brick_size * size, brick_size * size, i * size * brick_size, j * size * brick_size, size * brick_size, size * brick_size);
+        }
+    }
+}
+
+function draw_lego_tile_fill(canvas, easel, wid, hei, size, col, brick_size, base_pattern_size, transition_duration_mult){
+    // Assigns the easel color to the next lego tile color given as argument
+    easel.fillStyle = format_rgb_color_string_arr(col);
+
+    // Calculates how large a single 'tile' will be that we copy and repaste for efficiency
+    let brick_total_size = size * brick_size * base_pattern_size;
+
+    // Fills the base 'tile' with this lego's color
+    easel.fillRect(0, 0, brick_total_size, brick_total_size);
+
+    // Draws the lighter 'pips' for this lego tile
+    for(let i = 0; i < base_pattern_size; i++){
+        for(let j = 0; j < base_pattern_size; j++){
+            easel.fillStyle = format_rgb_color_string_arr(lighten(col));
+            easel.fillRect(size + i * size * brick_size, size + j * size * brick_size, size, size);
+        }
+    }
+
+    // For convenience we adjust the brick_size to now refer to the 'tile' size
+    brick_size *= base_pattern_size;
+
+    // Calculate how far along the transition period we are to know how much we should be drawing the new lego tile color
+    let prop = (counter % (lego_color_refresh * transition_duration_mult)) / (lego_color_refresh * transition_duration_mult);
+
+    // Calculates how many tile bricks we can draw horizontally and vertically
+    let wid_max = wid / size;
+    let hei_max = hei / size;
+
+    let wid_prop = prop * wid;
+
+    let hei_prop = prop * hei;
+
+    // Based on proportion of progress to drawing all, draws from the top left in an out-spiral to the bottom-right
+    for(let i = 0; i < wid_max; i++){
+        for(let j = 0; j < hei_max; j++){
+            let dist = Math.sqrt(Math.pow(i, 2) + Math.pow(j, 2));
+            if(dist < Math.sqrt(Math.pow(wid_prop, 2) + Math.pow(hei_prop, 2))){
+                easel.drawImage(canvas, 0, 0, brick_size * size, brick_size * size, i * size * brick_size, j * size * brick_size, size * brick_size, size * brick_size);
+            }
+        }
+    }
+}
+
+//--  VotV Style Backing   ------------------------------------
+
+function draw_votv_backing(canvas, easel, wid, hei, size){
+    
 }
 
 //---  Border Draw Types   --------------------------------------------------------------------
@@ -486,15 +638,19 @@ function initialize_lego_edge_style(){
     for(let i = 0; i < mini_block.length; i++){
         for(let j = 0; j < mini_block[i].length; j++){
             let color = mini_block[i][j];
-            for(let k = 0; k < block_size; k++){
-                for(let l = 0; l < block_size; l++){
-                    let choice = (k % 2 == 1 && l % 2 == 1);
-                    color_block[i * block_size + k][j * block_size + l] = choice ? format_rgb_color_string_arr(lighten(color)) : format_rgb_color_string_arr(color);
-                }
-            }
+            draw_sized_lego_piece(color_block, color, block_size, i, j);
         }
     }
 
+}
+
+function draw_sized_lego_piece(target_block, use_color, block_size, i_pos, j_pos){
+    for(let k = 0; k < block_size; k++){
+        for(let l = 0; l < block_size; l++){
+            let choice = (k % 2 == 1 && l % 2 == 1);
+            target_block[i_pos * block_size + k][j_pos * block_size + l] = choice ? format_rgb_color_string_arr(lighten(use_color)) : format_rgb_color_string_arr(use_color);
+        }
+    }
 }
 
 function lego_pattern_random(mini_block, block_height){
