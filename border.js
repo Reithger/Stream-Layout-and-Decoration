@@ -115,6 +115,9 @@ function draw_border(){
         case 'lego_b':
             draw_lego_backing(canvas, easel, wid, hei, 5, [0, 86, 191]);
             break;
+        case 'votv':
+            draw_votv_backing(canvas, easel, wid, hei, SIZE);
+            break;
         default:
             break;
     }
@@ -133,6 +136,9 @@ function draw_border(){
             break;
         case 'lego':
             draw_lego_border(canvas, easel, wid, hei, lego_size);
+            break;
+        case 'votv':
+            draw_votv_border(canvas, easel, wid, hei, 3);
             break;
         default:
             draw_edge_tour_point(easel, wid, hei, SIZE)
@@ -244,7 +250,7 @@ function draw_lego_backing(canvas, easel, wid, hei, size, col = undefined){
 
     let base_pattern_size = 5;
 
-    if(set_lego_col == undefined){
+    if(col == undefined && set_lego_col == undefined){
         set_lego_col = lego_colors[Math.floor(Math.random() * lego_colors.length)];
         bool_lego_shift = false;
     }
@@ -286,10 +292,12 @@ function draw_lego_base_backing(canvas, easel, wid, hei, size, col, brick_size, 
     // Calculates how large a single 'tile' will be that we copy and repaste for efficiency
     let brick_total_size = size * brick_size * base_pattern_size;
     // Draws the backdrop for the 'tile' of a solid color in the bottom right corner; we draw the lighter pips next
-    easel.fillRect(wid - brick_total_size, hei - brick_total_size, brick_total_size, brick_total_size);
+    easel.fillRect(0, 0, brick_total_size, brick_total_size);
 
     // Note: we draw in the bottom right corner so that if we do the color shifting bricks later, it can draw in the top-left easily
     // The brick-placement starts in the top-left so it should be more convenient doing that eventually
+
+    // Note: Nevermind, was a weird offset when it was in the bottom right, it's back in the top left again
 
     // Set the lightened highlight color
     easel.fillStyle = format_rgb_color_string_arr(lighten(col));
@@ -297,7 +305,7 @@ function draw_lego_base_backing(canvas, easel, wid, hei, size, col, brick_size, 
     // Draw the pips in the center of each individual 3x3 lego brick
     for(let i = 0; i < base_pattern_size; i++){
         for(let j = 0; j < base_pattern_size; j++){
-            easel.fillRect(wid - brick_total_size + size + i * size * brick_size, hei - brick_total_size + size + j * size * brick_size, size, size);
+            easel.fillRect(size + i * size * brick_size, size + j * size * brick_size, size, size);
         }
     }
 
@@ -305,9 +313,9 @@ function draw_lego_base_backing(canvas, easel, wid, hei, size, col, brick_size, 
     brick_size *= base_pattern_size;
 
     // Copy the 'tile' in the bottom right corner to cover the entire border background space
-    for(let i = 0; i < wid / size; i++){
-        for(let j = 0; j < hei / size; j++){
-            easel.drawImage(canvas, wid - brick_total_size, hei - brick_total_size, brick_size * size, brick_size * size, i * size * brick_size, j * size * brick_size, size * brick_size, size * brick_size);
+    for(let i = 0; i < (wid / brick_total_size) + 1; i++){
+        for(let j = 0; j < (hei / brick_total_size) + 1; j++){
+            easel.drawImage(canvas, 0, 0, brick_size * size, brick_size * size, i * size * brick_size, j * size * brick_size, size * brick_size, size * brick_size);
         }
     }
 }
@@ -357,7 +365,52 @@ function draw_lego_tile_fill(canvas, easel, wid, hei, size, col, brick_size, bas
 
 //--  VotV Style Backing   ------------------------------------
 
+/**
+ * 
+ * Backing style inspired by the aesthetics in the base of Voices of the Void
+ * 
+ * @param {*} canvas 
+ * @param {*} easel 
+ * @param {*} wid 
+ * @param {*} hei 
+ * @param {*} size 
+ */
+
 function draw_votv_backing(canvas, easel, wid, hei, size){
+    // Colors are deep blue, red, orange, yellow
+    let cols_bright = [[21, 31, 45], [150, 57, 26], [146, 89, 17], [150, 124, 13]];
+
+    let cols_dark = [[21, 31, 45], [79, 30, 23], [116, 80, 47], [133, 131, 98]];
+
+    let div = 12;
+    let y_start = hei * 1 / div;
+    
+    // Top-portion of the drawing area, cement wall vibe
+    let cement_light = [101, 103, 102];
+    easel.fillStyle = format_rgb_color_string_arr(lighten(cement_light));
+    easel.fillRect(0, 0, wid, hei);
+
+    // Bottom-portion of the drawing area, mahogany coloring
+    let chestnut_lighter = [81, 42, 19];
+    let chestnut_darker = [36, 12, 0];
+    let gradient = easel.createLinearGradient(wid / 2, y_start + 2 * hei / div, wid / 2, hei);
+    gradient.addColorStop(0, format_rgb_color_string_arr(chestnut_lighter));
+    gradient.addColorStop(.4, format_rgb_color_string_arr(chestnut_darker));
+    gradient.addColorStop(.6, format_rgb_color_string_arr(chestnut_darker));
+    gradient.addColorStop(1, format_rgb_color_string_arr(chestnut_lighter));
+    easel.fillStyle = gradient;
+    easel.fillRect(0, y_start, wid, hei);
+
+    // Middle Portion of the drawing area using the key color accent aesthetic
+    for(let i = 0; i < cols_dark.length; i++){
+        easel.fillStyle = format_rgb_color_string_arr(cols_bright[i]);
+        easel.fillRect(0, y_start + (i * hei / div), wid, hei / div);
+    }
+}
+
+//--  Vine Trellis Backing   ----------------------------------
+
+function draw_trellis_backing(canvas, easel, wid, hei, size){
     
 }
 
@@ -365,7 +418,7 @@ function draw_votv_backing(canvas, easel, wid, hei, size){
 
     //-- Draw Manual Style Pattern Repeated  ------------------
 
-function draw_pattern_edge(canvas, easel, wid, hei, size){
+function draw_pattern_edge(canvas, easel, wid, hei, size, asymm = true){
 
     if(color_block.length == 0){
         console.log("Attempt to call draw_pattern_edge without any color_block pattern defined (the 2d array of the pattern copied to draw the edge)");
@@ -395,7 +448,7 @@ function draw_pattern_edge(canvas, easel, wid, hei, size){
             
             // This was originally set to skip the last index for a lighting effect; if you want that back, draw a highlight pixel there not nothing (captures background and repeats that pattern)
             // For the outer-edge of the pattern to be the visual separation for the border, we draw it backwards for the right and bottom sides
-            easel.fillStyle = color_block[color_block.length - 1 - i][j];
+            easel.fillStyle = asymm ? color_block[color_block.length - 1 - i][j] : color_block[i][j];
             // Right Column
             easel.fillRect(wid - i * size - size, vert_edge_buffer + corner_displacement + j * size, size, size)
             // Bottom Row
@@ -598,6 +651,72 @@ function draw_soft_gradient(colors, row, start_color, end_color){
         let b3 = (b1 * (1.0 - perc) + b2 * perc);
         colors[row][i] = format_rgb_color_string(r3, g3, b3, 1)
     }
+}
+
+    //-- VotV Border  -----------------------------------------
+
+function draw_votv_border(canvas, easel, wid, hei, size){
+    if(color_block.length == 0){
+        initialize_votv_edge_style();
+    }
+
+    if(corner_block.length == 0){
+        initialize_votv_corner_style();
+    }
+
+    draw_pattern_edge(canvas, easel, wid, hei, size, false);
+}
+
+function initialize_votv_edge_style(){
+    let cols_bright = [[21, 31, 45], [150, 57, 26], [146, 89, 17], [150, 124, 13]];
+
+    color_block = [[], [], [], [], []];
+
+    for(let i = 0; i < 15; i++){
+        color_block[0].push(format_rgb_color_string_arr(cols_bright[1]));
+        color_block[1].push(format_rgb_color_string_arr(cols_bright[0]));
+        color_block[2].push(format_rgb_color_string_arr(cols_bright[2]));
+        color_block[3].push(format_rgb_color_string_arr(cols_bright[0]));
+        color_block[4].push(format_rgb_color_string_arr(cols_bright[3]));
+    }
+}
+
+function initialize_votv_corner_style(){
+    let cols_bright = [[21, 31, 45], [150, 57, 26], [146, 89, 17], [150, 124, 13]];
+
+    corner_block = [[], [], [], [], []];
+
+    for(let i = 0; i < corner_block.length; i++){
+        for(let j = 0; j < corner_block.length; j++){
+            corner_block[i].push(format_rgb_color_string_arr(cols_bright[0]));
+        }
+    }
+
+    for(let i = 0; i < corner_block.length; i++){
+        for(let j = 0; j < corner_block[i].length; j++){
+            if(i == 0 || j == 0){
+                corner_block[i][j] = format_rgb_color_string_arr(cols_bright[1]);
+            }
+            if((i == 2 || j == 2) && (i > 1 && j > 1)){
+                corner_block[i][j] = format_rgb_color_string_arr(cols_bright[2]);
+            }
+            if((i == 4 || j == 4) && (i > 3 && j > 3)){
+                corner_block[i][j] = format_rgb_color_string_arr(cols_bright[3]);
+            }
+        }
+    }
+
+    let replace = [];
+    let size = corner_block.length;
+    for(let i = 0; i < corner_block.length; i++){
+        let pos = (i + size * 2 - 1) % size;
+        replace.push(corner_block[pos][pos]);
+    }
+    for(let i = 0; i < size; i++){
+        corner_block[i][i] = replace[i];
+    }
+
+    corner_block[0][0] = format_rgb_color_string_arr(cols_bright[0]);
 }
 
     //-- Lego Brick Border  -----------------------------------
