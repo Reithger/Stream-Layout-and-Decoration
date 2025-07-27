@@ -6,7 +6,9 @@ let corner_block = [];
 
 let shine_color = [155, 140, 121];
 
-let leather_color = [45, 38, 32];
+let leather_color = darken([45, 38, 32]);
+
+let leather_stress_color = [45, 38, 32, .45];
 
 let accent_color = lighten([60, 50, 41]);
 
@@ -17,6 +19,34 @@ export function draw_dark_backing(easel, wid, hei, size){
 
     easel.fillRect(12, 0, wid - 24, hei);
     easel.fillRect(0, 12, wid, hei - 24);
+    
+    //easel.font = "italic 55px Brush Script MT";
+    easel.font = "italic 54px Luminari"
+    easel.fillStyle = format_rgb_color_string_arr(leather_stress_color);
+
+    // For thematic appropriateness, I am using the DS2 intro transcript for the text that gets mangled
+    let text = ["Perhaps you've seen it, maybe in a dream. A murky, forgotten land.",
+                "A place where souls may mend your ailing mind.",
+                "You will lose everything... once Branded. The symbol of the curse.",
+                "An augur of darkness. Your past. Your future. Your very light.",
+                "None will have meaning, and you won't even care. By then, you'll be something other than human.",
+                "A thing that feeds on souls. A Hollow. Long ago, in a walled off land, far to the north, a great king built a great kingdom.",
+                "I believe they called it Drangleic. Perhaps you're familiar. No, how could you be.",
+                "But one day, you will stand before its decrepit gate. Without really knowing why... Like a moth drawn to a flame.",
+                "Your wings will burn in anguish. Time after time. For that is your fate. The fate of the cursed.",
+                ];
+    
+    
+    easel.rotate((90 * Math.PI) / 180);
+    let i = 0;
+
+    while(i * 10 < wid){
+        let use = text[i % text.length] + (hei > wid ? text[i % text.length] : "");
+        easel.fillText(use, i % 2 == 0 ? (i % 7) * 5 : (i % 7) * -5, 0 - i * 10, hei);
+        i += 1;
+    }
+
+    easel.setTransform(1, 0, 0, 1, 0, 0);
 }
 
 export function draw_dark_souls_border(canvas, easel, wid, hei, size){
@@ -141,6 +171,16 @@ function mottle(color_arr, color, length, variance){
 
     color_arr.push(arr);
 
+}
+
+function clear(color_arr, length){
+    let arr = [];
+
+    for(let i = 0; i < length; i++){
+        arr.push(undefined);
+    }
+
+    color_arr.push(arr);
 }
 
 function adjust(color_vals, variance){
