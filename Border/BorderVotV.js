@@ -110,7 +110,7 @@ function initialize_votv_corner_style(){
         replace.push(corner_block[pos][pos]);
     }
     for(let i = 0; i < size; i++){
-        corner_block[i][i] = replace[i];
+       corner_block[i][i] = replace[i];
     }
 
     corner_block[0][0] = format_rgb_color_string_arr(cols_bright[0]);

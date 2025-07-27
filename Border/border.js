@@ -3,6 +3,7 @@ import {draw_flag_backing} from "./BorderFlag.js";
 import {draw_runescape_backing, draw_runescape_border} from "./BorderRunescape.js";
 import {draw_votv_border, draw_votv_backing} from "./BorderVotV.js";
 import {draw_edge_tour_point, draw_edges_all_shift} from "./BorderColorShift.js";
+import {draw_dark_souls_border, draw_dark_backing} from "./BorderDarkSouls.js";
 
 let counter = 0
 
@@ -74,6 +75,9 @@ function draw_border(){
         case 'votv':
             draw_votv_backing(canvas, easel, wid, hei, SIZE);
             break;
+        case 'dark':
+            draw_dark_backing(easel, wid, hei, SIZE);
+            break;
         default:
             break;
     }
@@ -96,6 +100,9 @@ function draw_border(){
         case 'votv':
             draw_votv_border(canvas, easel, wid, hei, 3);
             break;
+        case 'dark':
+            draw_dark_souls_border(canvas, easel, wid, hei, 1);
+            break;
         default:
             draw_edge_tour_point(easel, wid, hei, SIZE)
             break;
@@ -115,15 +122,29 @@ function mix_arrays(arr_one, arr_two){
     return arr_out;
 }
 
-//--  Vine Trellis Backing   ----------------------------------
-
-function draw_trellis_backing(canvas, easel, wid, hei, size){
-    
-}
-
 //---  Border Draw Types   --------------------------------------------------------------------
 
     //-- Draw Manual Style Pattern Repeated  ------------------
+
+/**
+ * 
+ * Given the color_block and corner_block 2D arrays, draws a repeating pattern along the border of the specified space
+ * and uses corner_block to draw a special corner embellishment if corner_block has contents (should not be undefined, we
+ * check for length = 0)
+ * 
+ * This function is expected to be imported to relevant sub-files that want to draw a repeating pattern along the border.
+ * 
+ * @param {*} canvas 
+ * @param {*} easel 
+ * @param {*} color_block 
+ * @param {*} corner_block 
+ * @param {*} wid 
+ * @param {*} hei 
+ * @param {*} size 
+ * @param {*} asymm 
+ * @returns 
+ */
+
 
 export function draw_pattern_edge(canvas, easel, color_block, corner_block, wid, hei, size, asymm = true){
 
@@ -198,12 +219,128 @@ export function draw_pattern_edge(canvas, easel, color_block, corner_block, wid,
 
     size = block_hei % corner_block.length == 0 ? Math.floor(block_hei / corner_block.length) : size;
 
+    draw_pattern_corners(canvas, easel, corner_block, wid, hei, size);
+}
+
+export function draw_pattern_edge_sides(canvas, easel, color_block, corner_block, wid, hei, size, asymm = true){
+    if(color_block.length == 0){
+        console.log("Attempt to call draw_pattern_edge without any color_block pattern defined (the 2d array of the pattern copied to draw the edge)");
+        return;
+    }
+
+    let corner_displacement = size * color_block.length;
+    if(corner_block.length == 0){
+        corner_displacement = 0;
+    }
+    
+    let block_hei = color_block.length * size
+    let block_wid = (color_block[0].length) * size
+    // Draws the initial segment of the edge pattern for each edge of the enclosed space
+    // If I could just rotate a referenced segment of the canvas, I wouldn't have to do this four times, but it's not costly so oh well
+
+    let horiz_edge_buffer = block_wid * 2 < (wid - corner_displacement * 2) ? block_wid : 0;
+    let vert_edge_buffer = block_wid * 2 < (hei - corner_displacement * 2) ? block_wid : 0;
+
+    for(let i = 0; i < color_block.length; i++){
+        for(let j = 0; j < color_block[i].length; j++){
+            easel.fillStyle = color_block[i][j]
+            // Left Column
+            easel.fillRect(i * size, hei - (j + 1) * size - vert_edge_buffer - corner_displacement, size, size)
+            
+            // This was originally set to skip the last index for a lighting effect; if you want that back, draw a highlight pixel there not nothing (captures background and repeats that pattern)
+            // For the outer-edge of the pattern to be the visual separation for the border, we draw it backwards for the right and bottom sides
+            easel.fillStyle = asymm ? color_block[color_block.length - 1 - i][j] : color_block[i][j];
+            // Right Column
+            easel.fillRect(wid - i * size - size, vert_edge_buffer + corner_displacement + j * size, size, size)
+        
+        }
+    }
+    // Draws the left and right vertical sections by copying the template image drawn in by the above above code
+    for(let i = 0; i < (hei - 2 * corner_displacement) / block_wid + 1; i += 1){
+        // References its own canvas to copy the template pattern along the row
+        // Right Column
+        let x_ref = wid - block_hei;
+        let y_ref = corner_displacement + vert_edge_buffer;
+        let x_tar = wid - block_hei;
+        let y_tar = i * block_wid + corner_displacement;
+        easel.drawImage(canvas, x_ref, y_ref, block_hei, block_wid, x_tar,y_tar, block_hei, block_wid)
+        // Left Column
+        x_ref = 0;
+        y_ref = hei - corner_displacement - block_wid - vert_edge_buffer;
+        x_tar = 0;
+        y_tar = hei - (i + 1) * block_wid - corner_displacement
+        easel.drawImage(canvas, x_ref, y_ref, block_hei, block_wid, x_tar, y_tar, block_hei, block_wid)
+    }
+}
+
+export function draw_pattern_edge_top_bottom(canvas, easel, color_block, corner_block, wid, hei, size, asymm = true){
+    if(color_block.length == 0){
+        console.log("Attempt to call draw_pattern_edge without any color_block pattern defined (the 2d array of the pattern copied to draw the edge)");
+        return;
+    }
+
+    let corner_displacement = size * color_block.length;
+    if(corner_block.length == 0){
+        corner_displacement = 0;
+    }
+    
+    let block_hei = color_block.length * size
+    let block_wid = (color_block[0].length) * size
+    // Draws the initial segment of the edge pattern for each edge of the enclosed space
+    // If I could just rotate a referenced segment of the canvas, I wouldn't have to do this four times, but it's not costly so oh well
+
+    let horiz_edge_buffer = block_wid * 2 < (wid - corner_displacement * 2) ? block_wid : 0;
+    let vert_edge_buffer = block_wid * 2 < (hei - corner_displacement * 2) ? block_wid : 0;
+
+    for(let i = 0; i < color_block.length; i++){
+        for(let j = 0; j < color_block[i].length; j++){
+            easel.fillStyle = color_block[i][j]
+            // Top Row
+            easel.fillRect(horiz_edge_buffer + corner_displacement + j * size, i * size, size, size)
+
+            // This was originally set to skip the last index for a lighting effect; if you want that back, draw a highlight pixel there not nothing (captures background and repeats that pattern)
+            // For the outer-edge of the pattern to be the visual separation for the border, we draw it backwards for the right and bottom sides
+            easel.fillStyle = asymm ? color_block[color_block.length - 1 - i][j] : color_block[i][j];
+            // Bottom Row
+            easel.fillRect(wid - (j + 1) * size - horiz_edge_buffer - corner_displacement, hei - i * size - size, size, size)
+        
+        }
+    }
+    // Draws the top and bottom horizontal sections by copying the template image drawn in by the above code
+    for(let i = 0; i < (wid - 2 * corner_displacement) / block_wid + 1; i += 1){
+        // References its own canvas to copy the template pattern along the row
+        // Top Row
+        let x_ref = corner_displacement + horiz_edge_buffer;
+        let y_ref = 0;
+        let x_tar = i * block_wid + corner_displacement;
+        let y_tar = 0;
+        easel.drawImage(canvas, x_ref, y_ref, block_wid, block_hei, x_tar, y_tar, block_wid, block_hei)
+        // Bottom Row
+        x_ref =  wid - corner_displacement - block_wid - horiz_edge_buffer;
+        y_ref = hei - block_hei;
+        x_tar = wid - (i) * block_wid - corner_displacement;
+        y_tar = hei - block_hei;
+        easel.drawImage(canvas, x_ref, y_ref, block_wid, block_hei, x_tar, y_tar, block_wid, block_hei)
+    }
+}
+
+export function draw_pattern_corners(canvas, easel, corner_block, wid, hei, size){
     if(corner_block.length != 0){
         // Draws the contents of corner_block to each of the four corners of the border, appropriately rotated for each
         for(let i = 0; i < corner_block.length; i++){
             for(let j = 0; j < corner_block[i].length; j++){
-                if(corner_block[i][j] != undefined){
-                    easel.fillStyle = corner_block[i][j];
+                easel.fillStyle = corner_block[i][j];
+                if(corner_block[i][j] == undefined){
+                    // Top Left
+                    easel.clearRect(j * size, i * size, size, size);
+                    // Top Right
+                    easel.clearRect(wid - i * size - size, j * size, size, size);
+                    // Bottom Right
+                    easel.clearRect(wid - j * size - size, hei - i * size - size, size, size)
+                    // Bottom Left
+                    easel.clearRect(i * size, hei - j * size - size, size, size)
+                }
+                else{
                     // Top Left
                     easel.fillRect(j * size, i * size, size, size);
                     // Top Right
@@ -214,9 +351,9 @@ export function draw_pattern_edge(canvas, easel, color_block, corner_block, wid,
                     easel.fillRect(i * size, hei - j * size - size, size, size)
                 }
             }
+            
         }
     }
-
 }
 
 //---  Support Methods   ----------------------------------------------------------------------
