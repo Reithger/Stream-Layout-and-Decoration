@@ -3,9 +3,11 @@
 
  These are intended to be run via the local-file Browser Source option in OBS (point it at the HTML file with the .js file in the same repo) and will infer their own size from the OBS element to format appropriately.
 
-<img width="709" height="639" alt="image" src="https://github.com/user-attachments/assets/d87652cb-86dd-4b62-8dab-b02f30f3ee5c" />
+## Border/Backing Types and their Keywords
 
  You can hot-swap between the borders and backgrounds for each border by hijacking the 'font-family' and 'content' fields in the Custom CSS entry in the Properties of the Browser Source element.
+ 
+<img width="713" height="299" alt="image" src="https://github.com/user-attachments/assets/be0170ef-4b54-4061-a6c1-8acbfbda4de8" />
 
  Your options for borders (font-family) are:
  - rainbow-tour
@@ -35,6 +37,8 @@
  The specific implementations of these are in a variety of JS files that are linked to in border.js, which border.html references. You need to have all of those in the same place for it to work.
 
  More are likely to be added as time goes on and I get more ideas!
+
+## Examples
 
  Example of Border.html being used to do a display in OBS around the space a GBA emulator would go, with Pokemon themed borders.
 
