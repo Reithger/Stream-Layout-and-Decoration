@@ -1,7 +1,5 @@
 import { format_rgb_color_string, lighten, darken, format_rgb_color_string_arr, draw_pattern_edge, draw_pattern_edge_sides} from "./border.js";
 
-let grass_color = [156, 206, 99];
-
 let floor_mat_color = darken([41, 49, 49]);
 
 let maroon = [206, 49, 57];
@@ -73,6 +71,8 @@ export function draw_arcade_mat_backing(easel, canvas, wid, hei, size){
 
 }
 
+let grass_color = [156, 206, 99];
+
 export function draw_grass_box_backing(easel, canvas, wid, hei, size){
     easel.fillStyle = format_rgb_color_string_arr(grass_color);
 
@@ -116,6 +116,118 @@ function draw_petal_imprint(easel, x, y, color, size){
     
     easel.fillRect(x + 7 * size, y + 2 * size, 2 * size, 2 * size);
     easel.fillRect(x + 6 * size, y + 3 * size, 2 * size, 2 * size);
+}
+
+let low_back_color = [231, 239, 255];
+
+let high_back_color = [206, 231, 247];
+
+let snow = [255, 255, 255];
+
+export function draw_snow_box_backing(easel, canvas, wid, hei, size){
+    easel.fillStyle = format_rgb_color_string_arr(low_back_color);
+
+    easel.fillRect(0, 0, wid, hei);
+
+    easel.fillStyle = format_rgb_color_string_arr(high_back_color);
+
+    easel.fillRect(0, 0, wid, hei / 4);
+
+    let across_x = 0;
+
+    let across_y = hei / 4;
+
+    let ind = 0;
+
+    while(across_x < wid){
+        mottle_block(easel, across_x, across_y, high_back_color, low_back_color, size);
+        across_x += size * 2;
+        if(ind % 3 == 0){
+            across_y += (Math.floor(ind / 10) % 2 == 0 ? size : -size);
+        }
+        ind += 1;
+    }
+
+    let start_x = 30;
+    let start_y = 30;
+
+    let step_x = 95;
+
+    while(start_y < hei){
+
+        start_x = 30;
+
+        while(start_x < wid){
+            draw_cross(easel, start_x, start_y, snow, size);
+            start_x += step_x;
+        }
+
+        start_y += 25;
+
+        start_x = 80;
+
+        while(start_x < wid){
+            draw_blot(easel, start_x, start_y, snow, size);
+            start_x += step_x;
+        }
+
+        start_y += 25;
+
+        start_x = 30;
+
+        while(start_x < wid){
+            draw_blot(easel, start_x, start_y, snow, size);
+            start_x += step_x;
+        }
+
+        start_y += 25;
+        start_x = 70;
+
+        while(start_x < wid){
+            draw_cross(easel, start_x, start_y, snow, size);
+            start_x += step_x;
+        }
+        start_y += 25;
+    }
+
+}
+
+function mottle_block(easel, x, y, color_one, color_two, size){
+    easel.fillStyle = format_rgb_color_string_arr(color_one);
+    easel.fillRect(x, y, size, size);
+    easel.fillRect(x + size, y + size, size, size);
+    // This last fill of this color is to fix color discrepencies above/below this spot
+    easel.fillRect(x, y - size * 8, 2 * size, 8 * size);
+    easel.fillStyle = format_rgb_color_string_arr(color_two);
+    easel.fillRect(x + size, y, size, size);
+    easel.fillRect(x, y + size, size, size);
+    // This last fill of this color is to fix color discrepencies above/below this spot
+    easel.fillRect(x, y + 2 * size, 2 * size, 5 * size);
+}
+
+function draw_blot(easel, x, y, color, size){
+    easel.fillStyle = format_rgb_color_string_arr(color);
+    for(let i = 1; i < 3; i++){
+        for(let j = 0; j < 4; j++){
+            easel.fillRect(x + size * (i - 1), y + size * (j - 1), size, size);
+        }
+    }
+    for(let i = 0; i < 4; i++){
+        for(let j = 1; j < 3; j++){
+            easel.fillRect(x + size * (i - 1), y + size * (j - 1), size, size);
+        }
+    }
+}
+
+function draw_cross(easel, x, y, color, size){
+    easel.fillStyle = format_rgb_color_string_arr(color);
+    for(let i = 0; i < 3; i++){
+        for(let j = 0; j < 3; j++){
+            if(i % 2 != 0 || j % 2 != 0){
+                easel.fillRect(x + size * (i - 1), y + size * (j - 1), size, size);
+            }
+        }
+    }
 }
 
 let border_arcade_ref;
