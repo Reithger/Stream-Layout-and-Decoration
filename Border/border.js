@@ -4,6 +4,7 @@ import {draw_runescape_backing, draw_runescape_border} from "./BorderRunescape.j
 import {draw_votv_border, draw_votv_backing} from "./BorderVotV.js";
 import {draw_edge_tour_point, draw_edges_all_shift} from "./BorderColorShift.js";
 import {draw_dark_souls_border, draw_dark_backing} from "./BorderDarkSouls.js";
+import {draw_arcade_mat_backing, draw_grass_box_backing, draw_pokeball_border} from "./BorderPokemon.js";
 
 let counter = 0
 
@@ -78,6 +79,12 @@ function draw_border(){
         case 'dark':
             draw_dark_backing(easel, wid, hei, SIZE);
             break;
+        case 'poke_grass':
+            draw_grass_box_backing(easel, canvas, wid, hei, 5);
+            break;
+        case 'poke_arcade':
+            draw_arcade_mat_backing(easel, canvas, wid, hei, 12);
+            break;
         default:
             break;
     }
@@ -102,6 +109,9 @@ function draw_border(){
             break;
         case 'dark':
             draw_dark_souls_border(canvas, easel, wid, hei, 1);
+            break;
+        case 'pokeball':
+            draw_pokeball_border(canvas, easel, wid, hei, 2);
             break;
         default:
             draw_edge_tour_point(easel, wid, hei, SIZE)
