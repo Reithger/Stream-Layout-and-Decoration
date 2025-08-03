@@ -3,7 +3,11 @@
 
  These are intended to be run via the local-file Browser Source option in OBS (point it at the HTML file with the .js file in the same repo) and will infer their own size from the OBS element to format appropriately.
 
-## Border/Backing Types and their Keywords
+ Just download the Borders folder from this repository and point Browser source at the border.html file, then configure the Custom CSS field as shown in the screenshot in **Border/Backing Types and their Keywords for Border.html**.
+
+ The Raindrop program would just require downloading the raindrop.html and raindrop.js files, put them in the same place, point a browser source at raindrop.html, and then watch the color droplets spread!
+
+## Border/Backing Types and their Keywords for Border.html
 
  You can hot-swap between the borders and backgrounds for each border by hijacking the 'font-family' and 'content' fields in the Custom CSS entry in the Properties of the Browser Source element.
  
