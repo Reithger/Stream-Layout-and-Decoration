@@ -4,7 +4,7 @@ import {draw_runescape_backing, draw_runescape_border} from "./BorderRunescape.j
 import {draw_votv_border, draw_votv_backing} from "./BorderVotV.js";
 import {draw_edge_tour_point, draw_edges_all_shift} from "./BorderColorShift.js";
 import {draw_dark_souls_border, draw_dark_backing} from "./BorderDarkSouls.js";
-import {draw_arcade_mat_backing, draw_grass_box_backing, draw_pokeball_border, draw_snow_box_backing} from "./BorderPokemon.js";
+import {draw_arcade_mat_backing, draw_grass_box_backing, draw_footprint_backing, draw_pokeball_border, draw_snow_box_backing} from "./BorderPokemon.js";
 
 let counter = 0
 
@@ -80,13 +80,16 @@ function draw_border(){
             draw_dark_backing(easel, wid, hei, SIZE);
             break;
         case 'poke_grass':
-            draw_grass_box_backing(easel, canvas, wid, hei, 5);
+            draw_grass_box_backing(easel, canvas, wid, hei, 6);
             break;
         case 'poke_arcade':
             draw_arcade_mat_backing(easel, canvas, wid, hei, 12);
             break;
         case 'poke_snow':
             draw_snow_box_backing(easel, canvas, wid, hei, 6);
+            break;
+        case 'poke_foot':
+            draw_footprint_backing(easel, canvas, wid, hei, 6);
             break;
         default:
             break;

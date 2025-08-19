@@ -99,8 +99,13 @@ export function draw_grass_box_backing(easel, canvas, wid, hei, size){
 
     let y = step;
 
-    while(y < hei){
-        easel.drawImage(canvas, 0, 0, wid, step, 0, y, wid, step);
+    let ind = 0;
+
+    base_hei = 3 * size;
+
+    while(y - ind * base_hei < hei){
+        easel.drawImage(canvas, 0, base_hei, wid, step - base_hei, 0, y - base_hei * ind, wid, step - base_hei);
+        ind += 1;
         y += step;
     }
 
@@ -116,6 +121,17 @@ function draw_petal_imprint(easel, x, y, color, size){
     
     easel.fillRect(x + 7 * size, y + 2 * size, 2 * size, 2 * size);
     easel.fillRect(x + 6 * size, y + 3 * size, 2 * size, 2 * size);
+    
+    /*
+    easel.fillRect(x + 4 * size, y - 2 * size, size, size);
+
+    easel.fillStyle = format_rgb_color_string_arr(alt_color);
+
+    easel.fillRect(x - size, y, size, size);
+    
+    easel.fillRect(x + 9 * size, y, size, size);
+    */
+
 }
 
 let low_back_color = [231, 239, 255];
@@ -131,11 +147,13 @@ export function draw_snow_box_backing(easel, canvas, wid, hei, size){
 
     easel.fillStyle = format_rgb_color_string_arr(high_back_color);
 
-    easel.fillRect(0, 0, wid, hei / 4);
+    let color_break = hei / 3;
+
+    easel.fillRect(0, 0, wid, color_break);
 
     let across_x = 0;
 
-    let across_y = hei / 4;
+    let across_y = color_break;
 
     let ind = 0;
 
@@ -229,6 +247,103 @@ function draw_cross(easel, x, y, color, size){
         }
     }
 }
+
+let ground_color = [176, 144, 104];
+
+let imprint_color = lighten(ground_color);
+
+let edge_color = [152, 120, 96];
+
+export function draw_footprint_backing(easel, canvas, wid, hei, size){
+    easel.fillStyle = format_rgb_color_string_arr(ground_color);
+
+    easel.fillRect(0, 0, wid, hei);
+
+    let base_wid_a = -4 * size;
+    let base_wid_b = 2 * size;
+    let symbol_wid = 14 * size;
+    let base_hei = size * 9;
+
+    let accent = edge_color;
+
+    let texture = darken(ground_color);
+
+    for(let i = 0; base_wid_a + i * symbol_wid < wid; i += 1){
+        draw_footprint_imprint(easel, base_wid_a + i * symbol_wid, base_hei / 2, imprint_color, accent, texture, size);
+    }
+
+    for(let i = 0; base_wid_b + i * symbol_wid < wid; i += 1){
+        draw_footprint_imprint(easel, base_wid_b + i * symbol_wid, base_hei * 2, imprint_color, accent, texture, size);
+    }
+    
+
+    let step = base_hei * 3.25;
+
+    let y = step;
+
+    let ind = 0;
+
+    base_hei = 2.5 * size;
+
+    while(y - ind * base_hei < hei){
+        easel.drawImage(canvas, 0, base_hei, wid, step - base_hei, 0, y - base_hei * ind, wid, step - base_hei);
+        ind += 1;
+        y += step;
+    }
+}
+
+function draw_footprint_imprint(easel, x, y, color, accent, texture, size){
+    easel.fillStyle = format_rgb_color_string_arr(color);
+    easel.fillRect(x + 1 * size, y + 1 * size, 1 * size, 1 * size);
+    easel.fillRect(x + 2 * size, y + 2 * size, 2 * size, 2 * size);
+
+    easel.fillRect(x + 0 * size, y + 4 * size, 1 * size, 1 * size);
+    easel.fillRect(x + 1 * size, y + 5 * size, 2 * size, 2 * size);
+
+    easel.fillRect(x + 4 * size, y + 0 * size, 1 * size, 1 * size);
+    easel.fillRect(x + 5 * size, y + 1 * size, 2 * size, 2 * size);
+
+    easel.fillRect(x + 5 * size, y + 4 * size, 3 * size, 2 * size);
+    easel.fillRect(x + 4 * size, y + 5 * size, 2 * size, 3 * size);
+    easel.fillRect(x + 6 * size, y + 6 * size, 1 * size, 1 * size);
+
+    easel.fillRect(x + 7 * size, y + 7 * size, 2 * size, 1 * size);
+    easel.fillRect(x + 6 * size, y + 8 * size, 2 * size, 1 * size);
+    easel.fillRect(x + 8 * size, y + 6 * size, 1 * size, 1 * size);
+
+
+
+    easel.fillStyle = format_rgb_color_string_arr(accent);
+    easel.fillRect(x + 2 * size, y + 3 * size, 1 * size, 1 * size);
+    easel.fillRect(x + 1 * size, y + 6 * size, 1 * size, 1 * size);
+    easel.fillRect(x + 5 * size, y + 2 * size, 1 * size, 1 * size);
+
+    easel.fillRect(x + 4 * size, y + 7 * size, 2 * size, 1 * size);
+    easel.fillRect(x + 4 * size, y + 6 * size, 1 * size, 1 * size);
+
+    easel.fillRect(x + 6 * size, y + 8 * size, 2 * size, 1 * size);
+
+    easel.fillStyle = format_rgb_color_string_arr(texture);
+    easel.fillRect(x + 6 * size, y - 1 * size, 2 * size, 1 * size);
+    easel.fillRect(x + 8 * size, y + 0 * size, 1 * size, 1 * size);
+
+    easel.fillRect(x + 10 * size, y + 4 * size, 1 * size, 1 * size);
+    easel.fillRect(x + 9 * size, y + 2 * size, 1 * size, 2 * size);
+
+    easel.fillRect(x + 0 * size, y + 1 * size, 1 * size, 1 * size);
+    easel.fillRect(x + -1 * size, y + 2 * size, 1 * size, 2 * size);
+
+    easel.fillRect(x + 2 * size, y + 8 * size, 1 * size, 1 * size);
+    easel.fillRect(x + 3 * size, y + 9 * size, 2 * size, 1 * size);
+
+    easel.fillRect(x + 10 * size, y + 7 * size, 1 * size, 2 * size);
+    easel.fillRect(x + 9 * size, y + 9 * size, 1 * size, 1 * size);
+
+    easel.fillRect(x + 1 * size, y - 1 * size, 1 * size, 1 * size);
+    easel.fillRect(x + 2 * size, y + -2 * size, 2 * size, 1 * size);
+}
+
+//---  Borders   ------------------------------------------------------------------------------
 
 let border_arcade_ref;
 
