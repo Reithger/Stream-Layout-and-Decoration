@@ -5,6 +5,11 @@ import { format_rgb_color_string, draw_pattern_edge} from "./border.js";
 let shadow_values = [];
 
 export function draw_runescape_backing(easel, wid, hei, size){
+    if(canvas.offscreenCanvas != undefined){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
     //easel.fillStyle = format_rgb_color_string(210, 193, 156);
     // Setup; put down baseline papyrus color and setup top/left shadow lines
     let color_choice = format_rgb_color_string(216, 196, 157);
@@ -53,6 +58,7 @@ export function draw_runescape_backing(easel, wid, hei, size){
         easel.fillRect(wid - amount * 3 / 4, amount, amount, hei);
         easel.fillRect(amount, hei - amount * 3 / 4, wid - amount * 7 / 4, amount);
     }
+    canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
 //--  Border   ------------------------------------------------

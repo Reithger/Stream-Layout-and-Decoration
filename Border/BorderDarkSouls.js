@@ -15,6 +15,11 @@ let accent_color = lighten([60, 50, 41]);
 let transp_color = [0, 0, 0, 0];
 
 export function draw_dark_backing(easel, wid, hei, size){
+    if(canvas.offscreenCanvas != undefined){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
     easel.fillStyle = format_rgb_color_string_arr(darken(leather_color));
 
     easel.fillRect(12, 0, wid - 24, hei);
@@ -47,6 +52,7 @@ export function draw_dark_backing(easel, wid, hei, size){
     }
 
     easel.setTransform(1, 0, 0, 1, 0, 0);
+    canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
 export function draw_dark_souls_border(canvas, easel, wid, hei, size){

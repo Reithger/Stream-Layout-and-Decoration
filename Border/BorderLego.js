@@ -1,4 +1,4 @@
-import {lighten, draw_pattern_edge, format_rgb_color_string_arr} from "./border.js";
+import {produce_canvas, lighten, draw_pattern_edge, format_rgb_color_string_arr} from "./border.js";
 
 let lego_colors = [[201, 26, 10], [0, 86, 191], [242, 205, 56], [34, 121, 64], [254, 138, 24], [54, 174, 190]];
 // The number of lego bricks along the narrower side
@@ -17,6 +17,11 @@ let next_lego_col = undefined;
 let bool_lego_shift = false;
 
 export function draw_lego_backing(canvas, easel, wid, hei, size, col = undefined){
+    if(canvas.offscreenCanvas != undefined){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
     let brick_size = 3;
 
     let base_pattern_size = 5;
@@ -55,6 +60,7 @@ export function draw_lego_backing(canvas, easel, wid, hei, size, col = undefined
             draw_lego_tile_fill(canvas, easel, wid, hei, size, next_lego_col, brick_size, 3, time_take);
         }
     }
+    canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
 function draw_lego_base_backing(canvas, easel, wid, hei, size, col, brick_size, base_pattern_size){

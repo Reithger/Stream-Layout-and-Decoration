@@ -1,4 +1,4 @@
-import { lighten, format_rgb_color_string_arr, draw_pattern_edge } from "./border.js";
+import { produce_canvas, lighten, format_rgb_color_string_arr, draw_pattern_edge } from "./border.js";
 
 //--  Backing   -----------------------------------------------
 
@@ -14,6 +14,11 @@ import { lighten, format_rgb_color_string_arr, draw_pattern_edge } from "./borde
  */
 
 export function draw_votv_backing(canvas, easel, wid, hei, size){
+    if(canvas.offscreenCanvas != undefined){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
     // Colors are deep blue, red, orange, yellow
     let cols_bright = [[21, 31, 45], [150, 57, 26], [146, 89, 17], [150, 124, 13]];
 
@@ -43,6 +48,7 @@ export function draw_votv_backing(canvas, easel, wid, hei, size){
         easel.fillStyle = format_rgb_color_string_arr(cols_bright[i]);
         easel.fillRect(0, y_start + (i * hei / div), wid, hei / div);
     }
+    canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
 
@@ -113,5 +119,5 @@ function initialize_votv_corner_style(){
        corner_block[i][i] = replace[i];
     }
 
-    corner_block[0][0] = format_rgb_color_string_arr(cols_bright[0]);
+    corner_block[0][0] = undefined; //format_rgb_color_string_arr(cols_bright[0]);
 }

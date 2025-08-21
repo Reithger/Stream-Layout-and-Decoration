@@ -1,4 +1,8 @@
-import { format_rgb_color_string, lighten, darken, format_rgb_color_string_arr, draw_pattern_edge, draw_pattern_edge_sides} from "./border.js";
+import { produce_canvas, format_rgb_color_string, lighten, darken, format_rgb_color_string_arr, draw_pattern_edge, draw_pattern_edge_sides} from "./border.js";
+
+//---  Backgrounds   --------------------------------------------------------------------------
+
+    //-- Arcade Background  -----------------------------------
 
 let floor_mat_color = darken([41, 49, 49]);
 
@@ -14,7 +18,13 @@ let arcade_colors = [maroon, pear, violet, teal];
 
 let arcade_ref = undefined;
 
+
 export function draw_arcade_mat_backing(easel, canvas, wid, hei, size){
+    if(canvas.offscreenCanvas != undefined){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
     easel.fillStyle = format_rgb_color_string_arr(floor_mat_color);
 
     easel.fillRect(0, 0, wid, hei);
@@ -69,11 +79,19 @@ export function draw_arcade_mat_backing(easel, canvas, wid, hei, size){
         }
     }
 
+    canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
+
+    //-- Grass Background  ------------------------------------
 
 let grass_color = [156, 206, 99];
 
 export function draw_grass_box_backing(easel, canvas, wid, hei, size){
+    if(canvas.offscreenCanvas != undefined){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
     easel.fillStyle = format_rgb_color_string_arr(grass_color);
 
     easel.fillRect(0, 0, wid, hei);
@@ -108,7 +126,7 @@ export function draw_grass_box_backing(easel, canvas, wid, hei, size){
         ind += 1;
         y += step;
     }
-
+    canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
 function draw_petal_imprint(easel, x, y, color, size){
@@ -134,6 +152,8 @@ function draw_petal_imprint(easel, x, y, color, size){
 
 }
 
+    //-- Snow Background  -------------------------------------
+
 let low_back_color = [231, 239, 255];
 
 let high_back_color = [206, 231, 247];
@@ -141,6 +161,11 @@ let high_back_color = [206, 231, 247];
 let snow = [255, 255, 255];
 
 export function draw_snow_box_backing(easel, canvas, wid, hei, size){
+    if(canvas.offscreenCanvas != undefined){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
     easel.fillStyle = format_rgb_color_string_arr(low_back_color);
 
     easel.fillRect(0, 0, wid, hei);
@@ -208,6 +233,7 @@ export function draw_snow_box_backing(easel, canvas, wid, hei, size){
         start_y += 25;
     }
 
+    canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
 function mottle_block(easel, x, y, color_one, color_two, size){
@@ -248,6 +274,8 @@ function draw_cross(easel, x, y, color, size){
     }
 }
 
+    //-- Fossil Foot Background  ------------------------------
+
 let ground_color = [176, 144, 104];
 
 let imprint_color = lighten(ground_color);
@@ -255,6 +283,11 @@ let imprint_color = lighten(ground_color);
 let edge_color = [152, 120, 96];
 
 export function draw_footprint_backing(easel, canvas, wid, hei, size){
+    if(canvas.offscreenCanvas != undefined){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
     easel.fillStyle = format_rgb_color_string_arr(ground_color);
 
     easel.fillRect(0, 0, wid, hei);
@@ -290,6 +323,7 @@ export function draw_footprint_backing(easel, canvas, wid, hei, size){
         ind += 1;
         y += step;
     }
+    canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
 function draw_footprint_imprint(easel, x, y, color, accent, texture, size){
@@ -345,6 +379,8 @@ function draw_footprint_imprint(easel, x, y, color, accent, texture, size){
 
 //---  Borders   ------------------------------------------------------------------------------
 
+    //-- Arcade Border  ---------------------------------------
+
 let border_arcade_ref;
 
 let color_block = undefined;
@@ -371,6 +407,8 @@ function initialize_arcade_border(){
 function initialize_arcade_corner(){
 
 }
+
+    //-- Pokeball Border  -------------------------------------
 
 export function draw_pokeball_border(canvas, easel, wid, hei, size){
     if(color_block == undefined){

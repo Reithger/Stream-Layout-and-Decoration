@@ -14,7 +14,7 @@ let rainbow = ["red", "orange", "yellow", "green", "blue", "purple"];
 
 let trans = ["cyan", "pink", "white", "pink", "cyan"];
 
-setInterval(draw_border, 30);
+setInterval(draw_border, 1000 / 30);
 
 function draw_border(){
     let canvas = document.getElementById("canvas")
@@ -41,6 +41,8 @@ function draw_border(){
     easel.lineWidth = 1
     
     // Switch case structure for deciding which backdrop to draw for a border box (uses term in the 'content' attribute)
+    // Note: for a static, unchanging background, make sure you write the final image to the offscreenCanvas so you can copy it over
+    //  without doing the entire draw operation every time.
 
     switch(back_type){
         case 'runescape':
@@ -120,7 +122,6 @@ function draw_border(){
             draw_pokeball_border(canvas, easel, wid, hei, 2);
             break;
         default:
-            draw_edge_tour_point(easel, wid, hei, SIZE)
             break;
     }
 
@@ -136,6 +137,13 @@ function mix_arrays(arr_one, arr_two){
         arr_out.push(arr_two[i]);
     }
     return arr_out;
+}
+
+export function produce_canvas(wid, hei){
+    let canvas = document.createElement("canvas");
+    canvas.width = wid;
+    canvas.height = hei;
+    return canvas;
 }
 
 //---  Border Draw Types   --------------------------------------------------------------------
