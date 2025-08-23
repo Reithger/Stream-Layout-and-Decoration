@@ -107,11 +107,12 @@ export function draw_beach_backing(easel, canvas, wid, hei, size){
          [false, true, true, false],
         [[8, 4], [8, 6], [8, 6], [8, 3]]);
 
+        //TODO: If the browser source is narrow (taller than wide), need to adjust some backgrounds for that context
 
     cross_screen_vert_mottle(easel, 0, hei * .1, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 6, 8, 0);
-    cross_screen_vert_mottle(easel, 0, hei * .25, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 7, 8, 0);
-    cross_screen_vert_mottle(easel, 0, hei * .4, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 6, 5, 0);
-    cross_screen_vert_mottle(easel, 0, hei * .55, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 7, 6, 0);
+    cross_screen_vert_mottle(easel, 0, hei * .25, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 7, 7, 0);
+    cross_screen_vert_mottle(easel, 0, hei * .4, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 6, 6, 0);
+    cross_screen_vert_mottle(easel, 0, hei * .55, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 7, 5, 0);
 
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
