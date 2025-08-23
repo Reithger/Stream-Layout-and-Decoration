@@ -101,23 +101,45 @@ export function draw_beach_backing(easel, canvas, wid, hei, size){
     }
     canvas.offscreenCanvas = produce_canvas(wid, hei);
 
+    if(hei > wid){
+        size *= 3 / 2;
+    }
+
+    let cycle = 4 * 8 * size;
+    let target = wid / 2;
+    let layers_offset = 0; //1.5;
+    while(cycle < target){
+        cycle += 4 * size;
+        layers_offset += .25;
+    }
+
+    //layers_offset = 0;
+
     mottle_layers(easel, wid, hei, size, 
         [sand_color, dark_sand, surf_color, sandy_water, water_color],
          [.66, .76, .78, .85],
          [false, true, true, false],
-        [[8, 4], [8, 6], [8, 6], [8, 3]]);
+        [[8, 4], [8, 6], [8, 6], [8, 3]], wid < hei ? layers_offset : 0);
 
         //TODO: If the browser source is narrow (taller than wide), need to adjust some backgrounds for that context
-
-    cross_screen_vert_mottle(easel, 0, hei * .1, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 6, 8, 0);
-    cross_screen_vert_mottle(easel, 0, hei * .25, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 7, 7, 0);
-    cross_screen_vert_mottle(easel, 0, hei * .4, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 6, 6, 0);
-    cross_screen_vert_mottle(easel, 0, hei * .55, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 7, 5, 0);
+    
+    if(wid > hei){
+        cross_screen_vert_mottle(easel, 0, hei * .1, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 6, 8, 0);
+        cross_screen_vert_mottle(easel, 0, hei * .25, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 7, 7, 0);
+        cross_screen_vert_mottle(easel, 0, hei * .4, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 6, 6, 0);
+        cross_screen_vert_mottle(easel, 0, hei * .55, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 7, 5, 0);
+    }
+    else{
+        cross_screen_vert_mottle(easel, 0, hei * .1, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 8, 6, layers_offset);
+        cross_screen_vert_mottle(easel, 0, hei * .25, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 8, 6, layers_offset + .25);
+        cross_screen_vert_mottle(easel, 0, hei * .4, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 8, 6, layers_offset + .5);
+        cross_screen_vert_mottle(easel, 0, hei * .55, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 8, 6, layers_offset + .75);
+    }
 
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
-function mottle_layers(easel, wid, hei, size, color_list, prop_list, smooth_list, sin_list){
+function mottle_layers(easel, wid, hei, size, color_list, prop_list, smooth_list, sin_list, offset = 0){
     let last_prop = 0;
     easel.fillStyle = format_rgb_color_string_arr(color_list[0]);
     easel.fillRect(0, 0, wid, hei);
@@ -130,20 +152,20 @@ function mottle_layers(easel, wid, hei, size, color_list, prop_list, smooth_list
         let sin_wid = sin_list[i][0];
         let sin_trough = sin_list[i][1];
         if(smooth_list[i]){
-            cross_screen_mottle_smooth(easel, 0, hei * prop, color_one, color_two, size, wid, sin_wid, sin_trough);
+            cross_screen_mottle_smooth(easel, 0, hei * prop, color_one, color_two, size, wid, sin_wid, sin_trough, offset);
         }
         else{
-            cross_screen_mottle(easel, 0, hei * prop, color_one, color_two, size, wid, sin_wid, sin_trough);
+            cross_screen_mottle(easel, 0, hei * prop, color_one, color_two, size, wid, sin_wid, sin_trough, sin_trough,offset);
         }
         last_prop = prop;
     }
 }
 
-function cross_screen_vert_mottle(easel, start_x, start_y, color_one, color_two, color_three, size, wid, step_width, trough_height){
+function cross_screen_vert_mottle(easel, start_x, start_y, color_one, color_two, color_three, size, wid, step_width, trough_height, offset = 0){
     let ind = 0;
 
     while(start_x < wid){
-        let val = Math.floor(Math.sin(.5 * Math.PI * (ind / step_width) - 1.25 * Math.PI) * trough_height);
+        let val = Math.floor(Math.sin(.5 * Math.PI * (ind / step_width) - (1.25 - offset) * Math.PI) * trough_height);
         vert_mottle(easel, start_x, start_y + val * size, color_one, color_two, color_three, size);
         start_x += size * 2;
         ind += 1;
@@ -184,58 +206,78 @@ export function draw_poke_water_backing(easel, canvas, wid, hei, size){
     easel.fillRect(0, hei * .8, wid, hei * .2);
 
     let mottle_wid = 3;
-    let mottle_hei = 5;
-
-    cross_screen_mottle(easel, 0, hei * .8, basic_water_blue, darken(basic_water_blue), size, wid, mottle_wid, mottle_hei);
+    let mottle_hei = 2;
 
     let dark_water = darken(darken(basic_water_blue));
 
-    easel.fillStyle = format_rgb_color_string_arr(darken(darken(basic_water_blue)));
+    if(hei > wid){
+        size *= 1;
+    }
 
-    easel.fillRect(0, hei * .9, wid, hei * .1);
+    // A sin wave cycle is 4 * mottle_wid * size
+    // By default, we hit the low trough at 3 * mottle_wid * size
+    // Need to modify layers_offset (value in range 0-2 for a full cycle) to make the low trough in the center
 
-    cross_screen_mottle(easel, 0, hei * .9 - size, darken(basic_water_blue), dark_water, size, wid, mottle_wid, mottle_hei);
+    let cycle = 3 * mottle_wid * size;
+    let target = wid / 2;
+    let layers_offset = 0; //1.5;
+    while(cycle < target){
+        cycle += mottle_wid * size;
+        layers_offset += .5;
+    }
 
-    let start_x = size * -8;
+    let screen_divide = 7;
+    mottle_layers(easel, wid, hei, size, 
+        [basic_water_blue, darken(basic_water_blue), dark_water],
+        [.8, .9],
+        [false, false],
+        [[mottle_wid, mottle_hei], [mottle_wid, mottle_hei]], wid > hei ? 0 : (layers_offset % 2));
+
+    let start_x = size * 4 + (layers_offset % 2) * mottle_wid * size;
     let ind = 0;
     while(start_x < wid){
         let wid_gap = size * 10;
-        let start_y = ind % 4 == 0 ? size * 0 : ind % 4 == 1 ? size * 2 : ind % 4 == 2 ? size * 4 : size * 2;
+        let start_y = 0;
         //let start_y = ind % 2 == 0 ? size * 2 : size * 4;
         start_y += 4 * size;
         draw_blot(easel, start_x + wid_gap / 6, start_y, bubble_blue, 7, size);
-        start_y += hei / 7;
+        start_y += hei / screen_divide;
         draw_blot(easel, start_x + wid_gap, start_y, bubble_blue, 6, size);
-        start_y += hei / 7;
+        start_y += hei / screen_divide;
         draw_blot(easel, start_x + wid_gap * 3 / 4, start_y, darken_prop(bubble_blue, .15), 5, size);
-        start_y += hei / 7;
+        start_y += hei / screen_divide;
         draw_blot(easel, start_x + wid_gap / 4, start_y, darken_prop(bubble_blue, .18), 5, size);
-        start_y += hei / 7;
-        draw_blot(easel, start_x + wid_gap / 3, start_y, darken_prop(bubble_blue, .22), 4, size);
-        start_y += hei / 7;
-        draw_blot(easel, start_x + wid_gap * 2 / 3, start_y, darken_prop(bubble_blue, .25), 4, size);
+        start_y += hei / screen_divide;
+        draw_blot(easel, start_x + wid_gap / 2, start_y, darken_prop(bubble_blue, .22), 4, size);
+        start_y += hei / screen_divide;
+        draw_blot(easel, start_x + wid_gap * 4 / 5 , start_y - size * 2, darken_prop(bubble_blue, .25), 4, size);
 
-        start_y -= size * 6;
+        //start_y -= size * 5;
 
-        start_y += hei / 7;
-        easel.fillStyle = format_rgb_color_string_arr(darken(dark_water));
-        easel.fillRect(start_x + wid_gap / 2 - 1 * size, start_y + size * 4, size * 7, size * 3);
-        easel.fillRect(start_x + wid_gap / 2 - 0 * size, start_y + size * 6, size * 5, size * 2);
-        easel.fillStyle = format_rgb_color_string_arr(darken(coral_red));
-        easel.fillRect(start_x + wid_gap / 2 - 1 * size, start_y + size * 2, size * 7, size * 2);
-        easel.fillRect(start_x + wid_gap / 2 - 0 * size, start_y + size * 4, size * 5, size * 1);
-        easel.fillRect(start_x + wid_gap / 2 + 1 * size, start_y + size * 5, size * 3, size * 1);
+        start_y = hei * 9 / 10;
 
-        simple_cross(easel, start_x + wid_gap / 2, start_y, coral_red, size);
-        simple_cross(easel, start_x + wid_gap / 2 - 2 * size, start_y , coral_red, size);
-        simple_cross(easel, start_x + wid_gap / 2 + 2 * size, start_y, coral_red, size);
-        simple_cross(easel, start_x + wid_gap / 2 + 4 * size, start_y , coral_red, size);
-
-        start_x += size * mottle_wid * mottle_hei;
+        draw_coral(easel, start_x + wid_gap / 2, start_y - size * 2, coral_red, darken(dark_water), size, 4);
+        start_x += size * mottle_wid * 8;
         ind += 1;
     }
 
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+}
+
+function draw_coral(easel, x, y, color_one, color_contrast, size, num_fronds){        
+    easel.fillStyle = format_rgb_color_string_arr(color_contrast);
+    easel.fillRect(x - (1 + Math.floor(num_fronds / 6)) * size, y , size * (2 * num_fronds - 1), size * 2);
+    easel.fillRect(x - (Math.floor(num_fronds / 6)) * size, y + size * 2, size * (2 * num_fronds - 3), size * 1);
+
+    easel.fillStyle = format_rgb_color_string_arr(darken(color_one));
+    easel.fillRect(x - (1 + Math.floor(num_fronds / 6)) * size, y - size * 2, size * (2 * num_fronds - 1), size * 2);
+    easel.fillRect(x - Math.floor(num_fronds / 6) * size, y + size * 0, size * (2 * num_fronds - 3), size * 1);
+    easel.fillRect(x - (Math.floor(num_fronds / 6) - 1) * size, y + size * 1, size * (2 * num_fronds - 5), size * 1);
+
+    for(let i = 0; i < num_fronds; i++){
+        let mod = Math.floor((i + 1) / 2) * size * (i % 2 == 0 ? 1 : -1) * 2 + (Math.floor(num_fronds / 2) * size);
+        simple_cross(easel, x + mod, y - size * 4, color_one, size);
+    }
 }
 
 function simple_cross(easel, x, y, color, size){
@@ -391,24 +433,22 @@ export function draw_snow_box_backing(easel, canvas, wid, hei, size){
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
-function cross_screen_mottle(easel, start_x, start_y, color_one, color_two, size, wid, step_width, trough_height, clean_height = trough_height){
+function cross_screen_mottle(easel, start_x, start_y, color_one, color_two, size, wid, step_width, trough_height, clean_height = trough_height, offset = 0){
     let ind = 0;
 
     while(start_x < wid){
-        let val = Math.floor(Math.sin(.5 * Math.PI * (ind / step_width) - 1.25 * Math.PI) * trough_height);
+        let val = Math.floor(Math.sin(.5 * Math.PI * (ind / step_width) - (1.25 - offset) * Math.PI) * trough_height);
         mottle_block(easel, start_x, start_y + val * size, color_one, color_two, size, clean_height);
         start_x += size * 2;
         ind += 1;
     }
 }
 
-function cross_screen_mottle_smooth(easel, start_x, start_y, color_one, color_two, size, wid, step_width, trough_height){
-    let cap = step_width * trough_height;
-
+function cross_screen_mottle_smooth(easel, start_x, start_y, color_one, color_two, size, wid, step_width, trough_height, offset = 0){
     let ind = 0; //Math.floor(cap / 2);
 
     while(start_x < wid){
-        let val = Math.floor(Math.sin(.5 * Math.PI * (ind / step_width) - 1.25 * Math.PI) * trough_height);
+        let val = Math.floor(Math.sin(.5 * Math.PI * (ind / step_width) - (1.25 - offset) * Math.PI) * trough_height);
         mottle_smooth(easel, start_x, start_y + val * size, color_one, color_two, size, trough_height);
         start_x += size * 2;
         ind += 1;
