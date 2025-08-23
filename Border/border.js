@@ -4,7 +4,7 @@ import {draw_runescape_backing, draw_runescape_border} from "./BorderRunescape.j
 import {draw_votv_border, draw_votv_backing} from "./BorderVotV.js";
 import {draw_edge_tour_point, draw_edges_all_shift} from "./BorderColorShift.js";
 import {draw_dark_souls_border, draw_dark_backing} from "./BorderDarkSouls.js";
-import {draw_arcade_mat_backing, draw_grass_box_backing, draw_footprint_backing, draw_pokeball_border, draw_snow_box_backing} from "./BorderPokemon.js";
+import {draw_poke_water_backing, draw_arcade_mat_backing, draw_grass_box_backing, draw_footprint_backing, draw_pokeball_border, draw_snow_box_backing} from "./BorderPokemon.js";
 
 let counter = 0
 
@@ -79,7 +79,7 @@ function draw_border(){
             draw_votv_backing(canvas, easel, wid, hei, SIZE);
             break;
         case 'dark':
-            draw_dark_backing(easel, wid, hei, SIZE);
+            draw_dark_backing(easel, wid, hei, 4);
             break;
         case 'poke_grass':
             draw_grass_box_backing(easel, canvas, wid, hei, 6);
@@ -92,6 +92,9 @@ function draw_border(){
             break;
         case 'poke_foot':
             draw_footprint_backing(easel, canvas, wid, hei, 6);
+            break;
+        case 'poke_seafloor':
+            draw_poke_water_backing(easel, canvas, wid, hei, 6);
             break;
         default:
             break;
@@ -396,6 +399,14 @@ export function darken(color_arr){
     let out = [color_arr[0], color_arr[1], color_arr[2]];
     for(let i = 0; i < out.length; i++){
         let add = out[i] * .25;
+        out[i] = out[i] - ((add == 0) ? 0 : add);
+    }
+    return out;
+}
+export function darken_prop(color_arr, amount){
+    let out = [color_arr[0], color_arr[1], color_arr[2]];
+    for(let i = 0; i < out.length; i++){
+        let add = out[i] * amount;
         out[i] = out[i] - ((add == 0) ? 0 : add);
     }
     return out;

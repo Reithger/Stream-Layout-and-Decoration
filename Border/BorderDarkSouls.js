@@ -8,7 +8,7 @@ let shine_color = [155, 140, 121];
 
 let leather_color = darken([45, 38, 32]);
 
-let leather_stress_color = [45, 38, 32, .45];
+let leather_stress_color = [45, 38, 32, .55];
 
 let accent_color = lighten([60, 50, 41]);
 
@@ -19,14 +19,16 @@ export function draw_dark_backing(easel, wid, hei, size){
         easel.drawImage(canvas.offscreenCanvas, 0, 0);
         return;
     }
+    let use_wid = wid;
+    let use_hei = hei;
     canvas.offscreenCanvas = produce_canvas(wid, hei);
     easel.fillStyle = format_rgb_color_string_arr(darken(leather_color));
 
-    easel.fillRect(12, 0, wid - 24, hei);
-    easel.fillRect(0, 12, wid, hei - 24);
+    easel.fillRect(12, 0, use_wid - 24, use_hei);
+    easel.fillRect(0, 12, use_wid, use_hei - 24);
     
     //easel.font = "italic 55px Brush Script MT";
-    easel.font = "italic 54px Luminari"
+    easel.font = "italic 50px Luminari"
     easel.fillStyle = format_rgb_color_string_arr(leather_stress_color);
 
     // For thematic appropriateness, I am using the DS2 intro transcript for the text that gets mangled
@@ -45,13 +47,17 @@ export function draw_dark_backing(easel, wid, hei, size){
     easel.rotate((90 * Math.PI) / 180);
     let i = 0;
 
-    while(i * 10 < wid){
-        let use = text[i % text.length] + (hei > wid ? text[i % text.length] : "");
-        easel.fillText(use, i % 2 == 0 ? (i % 7) * 5 : (i % 7) * -5, 0 - i * 10, hei);
+    let sep = 4;
+    let gap = 9;
+
+    while(i * gap < use_wid){
+        let use = text[i % text.length] + (use_hei > use_wid ? text[i % text.length] : "");
+        easel.fillText(use, i % 2 == 0 ? (i % 7) * sep : (i % 7) * -sep, 0 - i * gap, use_hei);
         i += 1;
     }
 
     easel.setTransform(1, 0, 0, 1, 0, 0);
+
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
