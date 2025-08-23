@@ -82,6 +82,83 @@ export function draw_arcade_mat_backing(easel, canvas, wid, hei, size){
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
+    //-- Beach Background  ------------------------------------
+
+let sand_color = [224, 208, 120];
+
+let water_color = [152, 192, 184];
+
+let sandy_water = [192, 208, 176];
+
+let surf_color = [232, 224, 192];
+
+let dark_sand = [216, 192, 112];
+
+export function draw_beach_backing(easel, canvas, wid, hei, size){
+    if(canvas.offscreenCanvas != undefined){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
+
+    mottle_layers(easel, wid, hei, size, 
+        [sand_color, dark_sand, surf_color, sandy_water, water_color],
+         [.66, .76, .78, .85],
+         [false, true, true, false],
+        [[8, 4], [8, 6], [8, 6], [8, 3]]);
+
+
+    cross_screen_vert_mottle(easel, 0, hei * .1, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 6, 8, 0);
+    cross_screen_vert_mottle(easel, 0, hei * .25, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 7, 8, 0);
+    cross_screen_vert_mottle(easel, 0, hei * .4, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 6, 5, 0);
+    cross_screen_vert_mottle(easel, 0, hei * .55, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 7, 6, 0);
+
+    canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+}
+
+function mottle_layers(easel, wid, hei, size, color_list, prop_list, smooth_list, sin_list){
+    let last_prop = 0;
+    easel.fillStyle = format_rgb_color_string_arr(color_list[0]);
+    easel.fillRect(0, 0, wid, hei);
+    for(let i = 0; i < color_list.length - 1; i++){
+        let color_one = color_list[i];
+        let color_two = color_list[i + 1];
+        let prop = prop_list[i];
+        easel.fillStyle = format_rgb_color_string_arr(color_two);
+        easel.fillRect(0, hei * prop, wid, hei * (1 - prop));
+        let sin_wid = sin_list[i][0];
+        let sin_trough = sin_list[i][1];
+        if(smooth_list[i]){
+            cross_screen_mottle_smooth(easel, 0, hei * prop, color_one, color_two, size, wid, sin_wid, sin_trough);
+        }
+        else{
+            cross_screen_mottle(easel, 0, hei * prop, color_one, color_two, size, wid, sin_wid, sin_trough);
+        }
+        last_prop = prop;
+    }
+}
+
+function cross_screen_vert_mottle(easel, start_x, start_y, color_one, color_two, color_three, size, wid, step_width, trough_height){
+    let ind = 0;
+
+    while(start_x < wid){
+        let val = Math.floor(Math.sin(.5 * Math.PI * (ind / step_width) - 1.25 * Math.PI) * trough_height);
+        vert_mottle(easel, start_x, start_y + val * size, color_one, color_two, color_three, size);
+        start_x += size * 2;
+        ind += 1;
+    }
+}
+
+function vert_mottle(easel, x, y, color_one, color_two, color_three, size){
+    easel.fillStyle = format_rgb_color_string_arr(color_one);
+    easel.fillRect(x, y, size, size);
+    easel.fillStyle = format_rgb_color_string_arr(color_two);
+    easel.fillRect(x, y + size, size, size);
+    easel.fillStyle = format_rgb_color_string_arr(color_three);
+    easel.fillRect(x, y + 2 * size, size, size);
+    easel.fillRect(x, y + 3 * size, size, size);
+}
+
     //-- Water Background  ------------------------------------
 
 
@@ -313,15 +390,13 @@ export function draw_snow_box_backing(easel, canvas, wid, hei, size){
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
-function cross_screen_mottle(easel, start_x, start_y, color_one, color_two, size, wid, step_width, trough_height){
+function cross_screen_mottle(easel, start_x, start_y, color_one, color_two, size, wid, step_width, trough_height, clean_height = trough_height){
     let ind = 0;
 
     while(start_x < wid){
-        mottle_block(easel, start_x, start_y, color_one, color_two, size);
+        let val = Math.floor(Math.sin(.5 * Math.PI * (ind / step_width) - 1.25 * Math.PI) * trough_height);
+        mottle_block(easel, start_x, start_y + val * size, color_one, color_two, size, clean_height);
         start_x += size * 2;
-        if(ind % step_width == 0){
-            start_y += (Math.floor(ind / (step_width * trough_height)) % 2 == 0 ? size : -size);
-        }
         ind += 1;
     }
 }
@@ -332,35 +407,33 @@ function cross_screen_mottle_smooth(easel, start_x, start_y, color_one, color_tw
     let ind = 0; //Math.floor(cap / 2);
 
     while(start_x < wid){
-        mottle_smooth(easel, start_x, start_y, color_one, color_two, size);
+        let val = Math.floor(Math.sin(.5 * Math.PI * (ind / step_width) - 1.25 * Math.PI) * trough_height);
+        mottle_smooth(easel, start_x, start_y + val * size, color_one, color_two, size, trough_height);
         start_x += size * 2;
-        if(ind % step_width == 0){
-            start_y += (Math.floor((ind) / (cap)) % 2 == 0 ? size : -size);
-        }
         ind += 1;
     }
 }
 
-function mottle_block(easel, x, y, color_one, color_two, size){
+function mottle_block(easel, x, y, color_one, color_two, size, clean_height = 5){
     easel.fillStyle = format_rgb_color_string_arr(color_one);
     easel.fillRect(x, y, size, size);
     easel.fillRect(x + size, y + size, size, size);
     // This last fill of this color is to fix color discrepencies above/below this spot
-    easel.fillRect(x, y - size * 5, 2 * size, 5 * size);
+    easel.fillRect(x, y - size * clean_height, 2 * size, clean_height * size);
     easel.fillStyle = format_rgb_color_string_arr(color_two);
     easel.fillRect(x + size, y, size, size);
     easel.fillRect(x, y + size, size, size);
     // This last fill of this color is to fix color discrepencies above/below this spot
-    easel.fillRect(x, y + 2 * size, 2 * size, 5 * size);
+    easel.fillRect(x, y + 2 * size, 2 * size, clean_height * size);
 }
 
-function mottle_smooth(easel, x, y, color_one, color_two, size){
+function mottle_smooth(easel, x, y, color_one, color_two, size, clean_height = 5){
     easel.fillStyle = format_rgb_color_string_arr(color_one);
     // This last fill of this color is to fix color discrepencies above/below this spot
-    easel.fillRect(x, y - size * 5, 2 * size, 5 * size);
+    easel.fillRect(x, y - size * clean_height, 2 * size, clean_height * size);
     easel.fillStyle = format_rgb_color_string_arr(color_two);
     // This last fill of this color is to fix color discrepencies above/below this spot
-    easel.fillRect(x, y + 2 * size, 2 * size, 5 * size);
+    easel.fillRect(x, y + 2 * size, 2 * size, clean_height * size);
 }
 
 function draw_blot(easel, x, y, color, blot_size, block_size){
