@@ -10,6 +10,10 @@ export function check_votv_backings(easel, canvas, wid, hei, size, counter, keyw
     }
 }
 
+export function keywords_back(){
+    return ["votv"];
+}
+
 export function check_votv_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "votv":
@@ -18,6 +22,10 @@ export function check_votv_borders(easel, canvas, wid, hei, size, counter, keywo
         default:
             return false;
     }
+}
+
+export function keywords_border(){
+    return ["votv"];
 }
 
 //--  Backing   -----------------------------------------------

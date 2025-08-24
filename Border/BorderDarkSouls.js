@@ -10,6 +10,10 @@ export function check_dark_backings(easel, canvas, wid, hei, size, counter, keyw
     }
 }
 
+export function keywords_back(){
+    return ["dark"];
+}
+
 export function check_dark_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "dark":
@@ -18,6 +22,10 @@ export function check_dark_borders(easel, canvas, wid, hei, size, counter, keywo
         default:
             return false;
     }
+}
+
+export function keywords_border(){
+    return ["dark"];
 }
 
 //---  Backings   -----------------------------------------------------------------------------

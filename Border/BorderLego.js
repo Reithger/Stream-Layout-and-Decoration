@@ -31,6 +31,10 @@ export function check_lego_backings(easel, canvas, wid, hei, size, counter, keyw
     }
 }
 
+export function keywords_back(){
+    return ["lego", "lego_g", "lego_r", "lego_c", "lego_b", "lego_br"];
+}
+
 export function check_lego_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "lego":
@@ -39,6 +43,10 @@ export function check_lego_borders(easel, canvas, wid, hei, size, counter, keywo
         default:
             return false;
     }
+}
+
+export function keywords_border(){
+    return ["lego"];
 }
 
 //--  Backing   -----------------------------------------------

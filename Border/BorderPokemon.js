@@ -32,6 +32,11 @@ export function check_pokemon_backings(easel, canvas, wid, hei, size, counter, k
     }
 }
 
+export function keywords_back(){
+    return ["poke_grass", "poke_arcade", "poke_snow", "poke_foot", "poke_seafloor", "poke_beach",
+            "poke_lava"];
+}
+
 export function check_pokemon_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "pokeball":
@@ -40,6 +45,10 @@ export function check_pokemon_borders(easel, canvas, wid, hei, size, counter, ke
         default:
             return false;
     }
+}
+
+export function keywords_border(){
+    return ["pokeball"];
 }
 
     //-- Arcade Background  -----------------------------------

@@ -10,6 +10,10 @@ export function check_runescape_backings(easel, canvas, wid, hei, size, counter,
     }
 }
 
+export function keywords_back(){
+    return ["runescape"];
+}
+
 export function check_runescape_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "runescape":
@@ -18,6 +22,10 @@ export function check_runescape_borders(easel, canvas, wid, hei, size, counter, 
         default:
             return false;
     }
+}
+
+export function keywords_border(){
+    return ["runescape"];
 }
 
 //--  Backing   -----------------------------------------------

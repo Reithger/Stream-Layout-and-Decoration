@@ -1,10 +1,10 @@
-import {check_lego_backings, check_lego_borders} from "./BorderLego.js";
-import {check_flag_backings} from "./BorderFlag.js";
-import {check_runescape_backings, check_runescape_borders} from "./BorderRunescape.js";
-import {check_votv_borders, check_votv_backings} from "./BorderVotV.js";
+import {check_lego_backings, check_lego_borders, keywords_back as lego_back, keywords_border as lego_border} from "./BorderLego.js";
+import {check_flag_backings, keywords_back as flag_back} from "./BorderFlag.js";
+import {check_runescape_backings, check_runescape_borders, keywords_back as runescape_back, keywords_border as runescape_border} from "./BorderRunescape.js";
+import {check_votv_borders, check_votv_backings, keywords_back as votv_back, keywords_border as votv_border} from "./BorderVotV.js";
 import {check_color_shift_borders} from "./BorderColorShift.js";
-import {check_dark_backings, check_dark_borders} from "./BorderDarkSouls.js";
-import {check_pokemon_backings, check_pokemon_borders} from "./BorderPokemon.js";
+import {check_dark_backings, check_dark_borders, keywords_back as dark_back, keywords_border as dark_border} from "./BorderDarkSouls.js";
+import {check_pokemon_backings, check_pokemon_borders, keywords_back as poke_back, keywords_border as poke_border} from "./BorderPokemon.js";
 
 /* counter tracks how many times the draw command has been called, used for animating*/
 let counter = 0
@@ -19,8 +19,19 @@ let backings = [check_pokemon_backings, check_dark_backings, check_lego_backings
 let borders = [check_pokemon_borders, check_dark_borders, check_lego_borders,
                 check_runescape_borders, check_votv_borders, check_color_shift_borders];
 
+let keywords_back_list = [poke_back, lego_back, votv_back, runescape_back,
+                          flag_back, dark_back];
+
+let keywords_border_list = [poke_border, lego_border, votv_border, runescape_border,
+                            dark_border];
+
 /* Calls the stream_border_draw function 30 times a second*/
-setInterval(stream_border_draw, 1000 / 30);
+try{
+    setInterval(stream_border_draw, 1000 / 30);
+}
+catch(err){
+    console.log(err);
+}
 
 /**
  * Function called periodically to display a variety of borders and backings
@@ -62,7 +73,14 @@ setInterval(stream_border_draw, 1000 / 30);
  */
 
 function stream_border_draw(){
-    let canvas = document.getElementById("canvas")
+    let canvas = undefined;
+    try{
+        canvas = document.getElementById("canvas")
+    }
+    catch(err){
+        //If a canvas is not found, just bail
+        return;
+    }
 
     let type = document.styleSheets[0].cssRules[0].style.getPropertyValue("font-family")
     let back_type = document.styleSheets[0].cssRules[0].style.getPropertyValue("content")
@@ -87,6 +105,10 @@ function stream_border_draw(){
  * 
  * An example combo of valid strings would be "votv" or "dark" for both outline
  * and background, or "pokeball" for outline and "poke_beach" for background.
+ * 
+ * You can retrieve a list of valid keywords by calling the functions
+ * 'retrieve_backing_keywords' and 'retrieve_border_keywords', or run the
+ * file 'ListBorderTypes.js' in the terminal.
  * 
  * TODO: Fourth argument for denoting the SIZE value? May not always be stable.
  * 
@@ -117,6 +139,58 @@ export function draw_border(canvas, backing_type, border_type){
     }
 
     counter += 1;
+}
+
+/**
+ * Retrieval function to obtain an array containing arrays of valid keywords which
+ * correspond to drawing designs of backgrounds.
+ * 
+ * Any of these keywords returned by this function will cause a full background to
+ * be drawn in the canvas provided to 'draw_border'.
+ * 
+ * This relies on proper inclusion of new keywords into the internal system for
+ * tracking these.
+ * 
+ * --- HOW TO INCLUDE NEW KEYWORDS INTO THIS SYSTEM ---
+ * 
+ * Each themed design file ('BorderLego.js' for example) should export a 'keywords_back'
+ * and 'keywords_border' function (if relevant) that contains all valid keywords for
+ * backgrounds and borders.
+ * 
+ * Import those functions to 'border.js' (relabel via 'as ___') and include them in the
+ * keywords_back_list and keywords_border_list lists.
+ * 
+ * @returns 
+ * 
+ */
+
+export function retrieve_backing_keywords(){
+    let out = [];
+    for(let i = 0; i < keywords_back_list.length; i++){
+        out = out.concat([keywords_back_list[i]()]);
+    }
+    return out;
+}
+
+/** 
+ * Retrieval function to obtain an array containing arrays of valid keywords which
+ * correspond to drawing designs of borders.
+ * 
+ * This relies on proper inclusion of new keywords into the internal system for
+ * tracking these.
+ * 
+ * Any of these keywords returned by this function will cause a border to
+ * be drawn in the canvas provided to 'draw_border'.
+ * 
+ * @returns 
+ */
+
+export function retrieve_border_keywords(){
+    let out = [];
+    for(let i = 0; i < keywords_border_list.length; i++){
+        out = out.concat([keywords_border_list[i]()]);
+    }
+    return out;
 }
 
 /**

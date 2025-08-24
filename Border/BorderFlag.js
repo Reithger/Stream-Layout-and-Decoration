@@ -18,6 +18,11 @@ export function check_flag_backings(easel, canvas, wid, hei, size, counter, keyw
             return false;
     }
 }
+
+export function keywords_back(){
+    return ["rainbow", "trans", "transbian"];
+}
+
 //--  Draw Backing   ------------------------------------------
 
 function draw_flag_backing(easel, wid, hei, size, colors, counter){
