@@ -1,5 +1,25 @@
 import { produce_canvas, format_rgb_color_string, lighten, darken, format_rgb_color_string_arr, draw_pattern_edge, draw_pattern_edge_sides} from "./border.js";
 
+export function check_dark_backings(easel, canvas, wid, hei, size, counter, keyword){
+    switch(keyword){
+        case "dark":
+            draw_dark_backing(easel, wid, hei, 4);
+            return true;
+        default:
+            return false;
+    }
+}
+
+export function check_dark_borders(easel, canvas, wid, hei, size, counter, keyword){
+    switch(keyword){
+        case "dark":
+            draw_dark_souls_border(canvas, easel, wid, hei, 1);
+            return true;
+        default:
+            return false;
+    }
+}
+
 let color_block = [];
 
 let corner_block = [];
@@ -14,7 +34,7 @@ let accent_color = lighten([60, 50, 41]);
 
 let transp_color = [0, 0, 0, 0];
 
-export function draw_dark_backing(easel, wid, hei, size){
+function draw_dark_backing(easel, wid, hei, size){
     if(canvas.offscreenCanvas != undefined){
         easel.drawImage(canvas.offscreenCanvas, 0, 0);
         return;
@@ -61,7 +81,7 @@ export function draw_dark_backing(easel, wid, hei, size){
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
-export function draw_dark_souls_border(canvas, easel, wid, hei, size){
+function draw_dark_souls_border(canvas, easel, wid, hei, size){
     if(color_block.length == 0){
         initialize_dark_edge_side();
         initialize_dark_corner();

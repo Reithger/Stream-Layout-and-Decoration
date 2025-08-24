@@ -6,6 +6,41 @@ let block_width = 1;
 // The pixel size of each lego block (so, 3x3 square or 5x5 square)
 let block_size = 5;
 
+export function check_lego_backings(easel, canvas, wid, hei, size, counter, keyword){
+    switch(keyword){
+        case 'lego':
+            draw_lego_backing(canvas, easel, wid, hei, 5, undefined);
+            return true;
+        case 'lego_g':
+            draw_lego_backing(canvas, easel, wid, hei, 5, [34, 121, 64]);
+            return true;
+        case 'lego_r':
+            draw_lego_backing(canvas, easel, wid, hei, 5, [201, 26, 10]);
+            return true;
+        case 'lego_c':
+            draw_lego_backing(canvas, easel, wid, hei, 5, [54, 174, 190]);
+            return true;
+        case 'lego_b':
+            draw_lego_backing(canvas, easel, wid, hei, 5, [0, 86, 191]);
+            return true;
+        case 'lego_br':
+            draw_lego_backing(canvas, easel, wid, hei, 5, [53, 33, 0]);
+            return true;
+        default:
+            return false;
+    }
+}
+
+export function check_lego_borders(easel, canvas, wid, hei, size, counter, keyword){
+    switch(keyword){
+        case "lego":
+            draw_lego_border(canvas, easel, wid, hei, 3, counter);
+            return true;
+        default:
+            return false;
+    }
+}
+
 //--  Backing   -----------------------------------------------
 
 let set_lego_col = undefined;
@@ -16,7 +51,7 @@ let next_lego_col = undefined;
 
 let bool_lego_shift = false;
 
-export function draw_lego_backing(canvas, easel, wid, hei, size, col = undefined){
+function draw_lego_backing(canvas, easel, wid, hei, size, col = undefined){
     if(canvas.offscreenCanvas != undefined){
         easel.drawImage(canvas.offscreenCanvas, 0, 0);
         return;
@@ -155,7 +190,7 @@ let lego_corner_refresh = 120;
 // Select 4-5 brick colors and fill out a space with them arbitrarily; random? Spatter pattern style? Try either
 // Draw the sub-grid into the 3x3 style into color_block
 
-export function draw_lego_border(canvas, easel, wid, hei, size, counter){
+function draw_lego_border(canvas, easel, wid, hei, size, counter){
     if(color_block.length == 0){
         initialize_lego_edge_style();
         lego_block_alt = color_block;

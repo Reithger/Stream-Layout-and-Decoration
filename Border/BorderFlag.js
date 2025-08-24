@@ -1,7 +1,26 @@
 
+let rainbow = ["red", "orange", "yellow", "green", "blue", "purple"];
+
+let trans = ["cyan", "pink", "white", "pink", "cyan"];
+
+export function check_flag_backings(easel, canvas, wid, hei, size, counter, keyword){
+    switch(keyword){
+        case 'rainbow':
+            draw_flag_backing(easel, wid, hei, 12, rainbow, counter);
+            return true;
+        case 'trans':
+            draw_flag_backing(easel, wid, hei, 12, trans, counter);
+            return true;
+        case 'transbian':
+            draw_flag_backing(easel, wid, hei, 12, mix_arrays(rainbow, trans), counter);
+            return true;
+        default:
+            return false;
+    }
+}
 //--  Draw Backing   ------------------------------------------
 
-export function draw_flag_backing(easel, wid, hei, size, colors, counter){
+function draw_flag_backing(easel, wid, hei, size, colors, counter){
     let use_wid = size * 5;
 
     easel.rotate((45 * Math.PI) / 180);
@@ -30,4 +49,15 @@ export function draw_flag_backing(easel, wid, hei, size, colors, counter){
 
 
     easel.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+function mix_arrays(arr_one, arr_two){
+    let arr_out = [];
+    for(let i = 0; i < arr_one.length; i++){
+        arr_out.push(arr_one[i]);
+    }
+    for(let i = 0; i < arr_two.length; i++){
+        arr_out.push(arr_two[i]);
+    }
+    return arr_out;
 }

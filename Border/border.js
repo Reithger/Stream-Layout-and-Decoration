@@ -1,30 +1,29 @@
-import {draw_lego_backing, draw_lego_border} from "./BorderLego.js";
-import {draw_flag_backing} from "./BorderFlag.js";
-import {draw_runescape_backing, draw_runescape_border} from "./BorderRunescape.js";
-import {draw_votv_border, draw_votv_backing} from "./BorderVotV.js";
-import {draw_edge_tour_point, draw_edges_all_shift} from "./BorderColorShift.js";
-import {draw_dark_souls_border, draw_dark_backing} from "./BorderDarkSouls.js";
-import {draw_lava_backing, draw_beach_backing, draw_poke_water_backing, draw_arcade_mat_backing, draw_grass_box_backing, draw_footprint_backing, draw_pokeball_border, draw_snow_box_backing} from "./BorderPokemon.js";
+import {check_lego_backings, check_lego_borders} from "./BorderLego.js";
+import {check_flag_backings} from "./BorderFlag.js";
+import {check_runescape_backings, check_runescape_borders} from "./BorderRunescape.js";
+import {check_votv_borders, check_votv_backings} from "./BorderVotV.js";
+import {check_color_shift_borders} from "./BorderColorShift.js";
+import {check_dark_backings, check_dark_borders} from "./BorderDarkSouls.js";
+import {check_pokemon_backings, check_pokemon_borders} from "./BorderPokemon.js";
 
 let counter = 0
 
+let backings = [check_pokemon_backings, check_dark_backings, check_lego_backings,
+                check_runescape_backings, check_flag_backings, check_votv_backings];
+
+let borders = [check_pokemon_borders, check_dark_borders, check_lego_borders,
+                check_runescape_borders, check_votv_borders, check_color_shift_borders];
+
 //-- Variables for Flag Background  ---------------------------
 
-let rainbow = ["red", "orange", "yellow", "green", "blue", "purple"];
+setInterval(stream_border_draw, 1000 / 30);
 
-let trans = ["cyan", "pink", "white", "pink", "cyan"];
-
-setInterval(draw_border, 1000 / 30);
-
-function draw_border(){
+function stream_border_draw(){
     let canvas = document.getElementById("canvas")
-
-    let body = document.getElementById("body")
 
     let type = document.styleSheets[0].cssRules[0].style.getPropertyValue("font-family")
     let back_type = document.styleSheets[0].cssRules[0].style.getPropertyValue("content")
-
-    back_type = back_type.slice(1, back_type.length - 1)
+    back_type = back_type.slice(1, back_type.length - 1);
 
     let wid = window.innerWidth
     let hei = window.innerHeight
@@ -33,119 +32,36 @@ function draw_border(){
         canvas.width = wid
         canvas.height = hei
     }
+    draw_border(canvas, back_type, type);
+}
 
+export function draw_border(canvas, backing_type, border_type){
     let easel = canvas.getContext("2d")
-
     let SIZE = 8
 
     easel.lineWidth = 1
+
+    let wid = canvas.width;
+    let hei = canvas.height;
     
     // Switch case structure for deciding which backdrop to draw for a border box (uses term in the 'content' attribute)
     // Note: for a static, unchanging background, make sure you write the final image to the offscreenCanvas so you can copy it over
     //  without doing the entire draw operation every time.
 
-    switch(back_type){
-        case 'runescape':
-            draw_runescape_backing(easel, wid, hei, 2);
+    for(let i = 0; i < backings.length; i++){
+        if(backings[i](easel, canvas, wid, hei, SIZE, counter, backing_type)){
             break;
-        case 'rainbow':
-            draw_flag_backing(easel, wid, hei, 12, rainbow, counter);
-            break;
-        case 'trans':
-            draw_flag_backing(easel, wid, hei, 12, trans, counter);
-            break;
-        case 'transbian':
-            draw_flag_backing(easel, wid, hei, 12, mix_arrays(rainbow, trans), counter);
-            break;
-        case 'lego':
-            draw_lego_backing(canvas, easel, wid, hei, 5, undefined);
-            break;
-        case 'lego_g':
-            draw_lego_backing(canvas, easel, wid, hei, 5, [34, 121, 64]);
-            break;
-        case 'lego_r':
-            draw_lego_backing(canvas, easel, wid, hei, 5, [201, 26, 10]);
-            break;
-        case 'lego_c':
-            draw_lego_backing(canvas, easel, wid, hei, 5, [54, 174, 190]);
-            break;
-        case 'lego_b':
-            draw_lego_backing(canvas, easel, wid, hei, 5, [0, 86, 191]);
-            break;
-        case 'lego_br':
-            draw_lego_backing(canvas, easel, wid, hei, 5, [53, 33, 0]);
-            break;
-        case 'votv':
-            draw_votv_backing(canvas, easel, wid, hei, SIZE);
-            break;
-        case 'dark':
-            draw_dark_backing(easel, wid, hei, 4);
-            break;
-        case 'poke_grass':
-            draw_grass_box_backing(easel, canvas, wid, hei, 6);
-            break;
-        case 'poke_arcade':
-            draw_arcade_mat_backing(easel, canvas, wid, hei, 12);
-            break;
-        case 'poke_snow':
-            draw_snow_box_backing(easel, canvas, wid, hei, 6);
-            break;
-        case 'poke_foot':
-            draw_footprint_backing(easel, canvas, wid, hei, 6);
-            break;
-        case 'poke_seafloor':
-            draw_poke_water_backing(easel, canvas, wid, hei, 6);
-            break;
-        case 'poke_beach':
-            draw_beach_backing(easel, canvas, wid, hei, 3);
-            break;
-        case 'poke_lava':
-            draw_lava_backing(easel, canvas, wid, hei, 6);
-            break;
-        default:
-            break;
+        }
     }
 
+    for(let i = 0; i < borders.length; i++){
+        if(borders[i](easel, canvas, wid, hei, SIZE, counter, border_type)){
+            break;
+        }
+    }
     // Switch case structure for deciding which border type to draw for a border box (uses term in the 'font-family' attribute)
 
-    switch(type){
-        case 'rainbow-tour':
-            draw_edge_tour_point(easel, wid, hei, SIZE, counter)
-            break;
-        case 'rainbow-pulse':
-            draw_edges_all_shift(easel, wid, hei, SIZE)
-            break;
-        case 'runescape':
-            draw_runescape_border(canvas, easel, wid, hei, 2)
-            break;
-        case 'lego':
-            draw_lego_border(canvas, easel, wid, hei, 3, counter);
-            break;
-        case 'votv':
-            draw_votv_border(canvas, easel, wid, hei, 3);
-            break;
-        case 'dark':
-            draw_dark_souls_border(canvas, easel, wid, hei, 1);
-            break;
-        case 'pokeball':
-            draw_pokeball_border(canvas, easel, wid, hei, 2);
-            break;
-        default:
-            break;
-    }
-
     counter += 1;
-}
-
-function mix_arrays(arr_one, arr_two){
-    let arr_out = [];
-    for(let i = 0; i < arr_one.length; i++){
-        arr_out.push(arr_one[i]);
-    }
-    for(let i = 0; i < arr_two.length; i++){
-        arr_out.push(arr_two[i]);
-    }
-    return arr_out;
 }
 
 export function produce_canvas(wid, hei){
@@ -396,6 +312,15 @@ export function lighten(color_arr){
     let out = [color_arr[0], color_arr[1], color_arr[2]];
     for(let i = 0; i < out.length; i++){
         let add = out[i] * .25;
+        out[i] = out[i] + ((add == 0) ? 30 : add);
+    }
+    return out;
+}
+
+export function lighten_prop(color_arr, amount){
+    let out = [color_arr[0], color_arr[1], color_arr[2]];
+    for(let i = 0; i < out.length; i++){
+        let add = out[i] * amount;
         out[i] = out[i] + ((add == 0) ? 30 : add);
     }
     return out;

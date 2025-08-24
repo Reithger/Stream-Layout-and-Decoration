@@ -1,5 +1,25 @@
 import { produce_canvas, lighten, format_rgb_color_string_arr, draw_pattern_edge } from "./border.js";
 
+export function check_votv_backings(easel, canvas, wid, hei, size, counter, keyword){
+    switch(keyword){
+        case "votv":
+            draw_votv_backing(canvas, easel, wid, hei, size);
+            return true;
+        default:
+            return false;
+    }
+}
+
+export function check_votv_borders(easel, canvas, wid, hei, size, counter, keyword){
+    switch(keyword){
+        case "votv":
+            draw_votv_border(canvas, easel, wid, hei, 3);
+            return true;
+        default:
+            return false;
+    }
+}
+
 //--  Backing   -----------------------------------------------
 
 /**

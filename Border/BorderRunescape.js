@@ -1,10 +1,30 @@
 import { format_rgb_color_string, draw_pattern_edge} from "./border.js";
 
+export function check_runescape_backings(easel, canvas, wid, hei, size, counter, keyword){
+    switch(keyword){
+        case "runescape":
+            draw_runescape_backing(easel, wid, hei, 2);
+            return true;
+        default:
+            return false;
+    }
+}
+
+export function check_runescape_borders(easel, canvas, wid, hei, size, counter, keyword){
+    switch(keyword){
+        case "runescape":
+            draw_runescape_border(canvas, easel, wid, hei, 2);
+            return true;
+        default:
+            return false;
+    }
+}
+
 //--  Backing   -----------------------------------------------
 
 let shadow_values = [];
 
-export function draw_runescape_backing(easel, wid, hei, size){
+function draw_runescape_backing(easel, wid, hei, size){
     if(canvas.offscreenCanvas != undefined){
         easel.drawImage(canvas.offscreenCanvas, 0, 0);
         return;

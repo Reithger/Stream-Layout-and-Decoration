@@ -1,5 +1,18 @@
 import { format_rgb_color_string } from "./border.js";
 
+export function check_color_shift_borders(easel, canvas, wid, hei, size, counter, keyword){
+    switch(keyword){
+        case 'rainbow-tour':
+            draw_edge_tour_point(easel, wid, hei, size, counter)
+            return true;
+        case 'rainbow-pulse':
+            draw_edges_all_shift(easel, wid, hei, size)
+            return true;
+        default:
+            return false;
+    }
+}
+
 //--  Borders   -----------------------------------------------
 
 let under_colors = []
@@ -20,7 +33,7 @@ let b_up = true
 let COLOR_PACE = 300;
 
 
-export function draw_edge_tour_point(easel, wid, hei, size, counter){
+function draw_edge_tour_point(easel, wid, hei, size, counter){
     max_period = (2 * (wid + hei) / size) + 1
 
     // Initializes the entire border to be a base color we're going to draw over by replacing
@@ -54,7 +67,7 @@ export function draw_edge_tour_point(easel, wid, hei, size, counter){
  * @param {*} size 
  */
 
-export function draw_edges_all_shift(easel, wid, hei, size){
+function draw_edges_all_shift(easel, wid, hei, size){
     let draw_index = 0
     // -->
     draw_index = draw_edge_all_shift(0, 0, wid, size, easel, COLOR_PACE, draw_index)
