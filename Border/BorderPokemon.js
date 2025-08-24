@@ -82,6 +82,28 @@ export function draw_arcade_mat_backing(easel, canvas, wid, hei, size){
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
+    //-- Lava Background  -------------------------------------
+
+let lava_color = [216, 127, 71];
+
+export function draw_lava_backing(easel, canvas, wid, hei, size){
+    if(canvas.offscreenCanvas != undefined){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
+
+    //TODO: accent with lava bubbles popping and sizzling
+
+    mottle_layers(easel, wid, hei, size, 
+        [lighten(lava_color), lava_color, darken(lava_color), darken(darken(lava_color))],
+        [.15, .55, .85],
+        [false, false, false],
+        [[4, 4], [6, 4], [12, 3]], 0);
+
+    canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+}
+
     //-- Beach Background  ------------------------------------
 
 let sand_color = [224, 208, 120];
@@ -123,17 +145,20 @@ export function draw_beach_backing(easel, canvas, wid, hei, size){
 
         //TODO: If the browser source is narrow (taller than wide), need to adjust some backgrounds for that context
     
-    if(wid > hei){
+    if(wid > hei && (hei > wid / 4)){
         cross_screen_vert_mottle(easel, 0, hei * .1, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 6, 8, 0);
         cross_screen_vert_mottle(easel, 0, hei * .25, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 7, 7, 0);
         cross_screen_vert_mottle(easel, 0, hei * .4, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 6, 6, 0);
         cross_screen_vert_mottle(easel, 0, hei * .55, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 7, 5, 0);
     }
-    else{
+    else if(hei > wid / 4){
         cross_screen_vert_mottle(easel, 0, hei * .1, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 8, 6, layers_offset);
         cross_screen_vert_mottle(easel, 0, hei * .25, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 8, 6, layers_offset + .25);
         cross_screen_vert_mottle(easel, 0, hei * .4, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 8, 6, layers_offset + .5);
         cross_screen_vert_mottle(easel, 0, hei * .55, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 8, 6, layers_offset + .75);
+    }
+    else{
+        cross_screen_vert_mottle(easel, 0, hei * .3, lighten(lighten(sand_color)), surf_color, dark_sand, size, wid, 8, 4, layers_offset - 1.5);
     }
 
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
@@ -226,37 +251,54 @@ export function draw_poke_water_backing(easel, canvas, wid, hei, size){
         layers_offset += .5;
     }
 
-    let screen_divide = 7;
+    let screen_divide = hei < wid / 4 ? Math.floor(hei / (size * 12)) : 7;
+
     mottle_layers(easel, wid, hei, size, 
         [basic_water_blue, darken(basic_water_blue), dark_water],
-        [.8, .9],
+        hei < wid / 4 ? [.4, .6] : [.8, .9],
         [false, false],
         [[mottle_wid, mottle_hei], [mottle_wid, mottle_hei]], wid > hei ? 0 : (layers_offset % 2));
 
     let start_x = size * 4 + (layers_offset % 2) * mottle_wid * size;
     let ind = 0;
+    
     while(start_x < wid){
-        let wid_gap = size * 10;
+        let wid_gap = 4 * mottle_wid * size;
         let start_y = 0;
-        //let start_y = ind % 2 == 0 ? size * 2 : size * 4;
         start_y += 4 * size;
-        draw_blot(easel, start_x + wid_gap / 6, start_y, bubble_blue, 7, size);
-        start_y += hei / screen_divide;
-        draw_blot(easel, start_x + wid_gap, start_y, bubble_blue, 6, size);
-        start_y += hei / screen_divide;
-        draw_blot(easel, start_x + wid_gap * 3 / 4, start_y, darken_prop(bubble_blue, .15), 5, size);
-        start_y += hei / screen_divide;
-        draw_blot(easel, start_x + wid_gap / 4, start_y, darken_prop(bubble_blue, .18), 5, size);
-        start_y += hei / screen_divide;
-        draw_blot(easel, start_x + wid_gap / 2, start_y, darken_prop(bubble_blue, .22), 4, size);
-        start_y += hei / screen_divide;
-        draw_blot(easel, start_x + wid_gap * 4 / 5 , start_y - size * 2, darken_prop(bubble_blue, .25), 4, size);
-
+        
+        if(hei < wid / 4){
+            let dark_prop = .0;
+            let ind = 0;
+            let x_mod = Math.floor(Math.sin(.5 * Math.PI * ((ind * 6 - 3) / screen_divide)) * (6 - Math.floor(ind / 1)));
+            while(start_y < hei * 9 / 10){
+                draw_blot(easel, start_x + wid_gap / 2 + x_mod * size, start_y - ind * size, darken_prop(bubble_blue, dark_prop), 5 - (Math.floor(ind * 2 / 3)), size);
+                start_y += hei / screen_divide;
+                dark_prop += (.05 + screen_divide * .01);
+                ind += 1;
+                x_mod = Math.floor(Math.sin(.5 * Math.PI * ((ind * 6 - 3) / screen_divide)) * (6 - Math.floor(ind / 1)));
+            }
+        }
+        else{
+            start_y = 0;
+            start_y += 5 * size;
+            draw_blot(easel, start_x + wid_gap / 6, start_y, bubble_blue, 7, size);
+            start_y += hei / screen_divide;
+            draw_blot(easel, start_x + wid_gap, start_y, bubble_blue, 6, size);
+            start_y += hei / screen_divide;
+            draw_blot(easel, start_x + wid_gap * 3 / 4, start_y, darken_prop(bubble_blue, .15), 5, size);
+            start_y += hei / screen_divide;
+            draw_blot(easel, start_x + wid_gap / 4, start_y, darken_prop(bubble_blue, .18), 5, size);
+            start_y += hei / screen_divide;
+            draw_blot(easel, start_x + wid_gap / 2, start_y, darken_prop(bubble_blue, .22), 4, size);
+            start_y += hei / screen_divide;
+            draw_blot(easel, start_x + wid_gap * 4 / 5 , start_y - size * 2, darken_prop(bubble_blue, .25), 4, size);
+        }
         //start_y -= size * 5;
-
+        /* */
         start_y = hei * 9 / 10;
 
-        draw_coral(easel, start_x + wid_gap / 2, start_y - size * 2, coral_red, darken(dark_water), size, 4);
+        draw_coral(easel, start_x + wid_gap / 2 - size, start_y - size * 2, coral_red, darken(dark_water), size, 4);
         start_x += size * mottle_wid * 8;
         ind += 1;
     }
@@ -378,7 +420,7 @@ export function draw_snow_box_backing(easel, canvas, wid, hei, size){
 
     easel.fillStyle = format_rgb_color_string_arr(high_back_color);
 
-    let color_break = hei / 3;
+    let color_break = wid / 4 > hei ? hei / 2 : hei / 3;
 
     easel.fillRect(0, 0, wid, color_break);
 
@@ -386,7 +428,7 @@ export function draw_snow_box_backing(easel, canvas, wid, hei, size){
 
     let across_y = color_break;
 
-    cross_screen_mottle(easel, across_x, across_y, high_back_color, low_back_color, size, wid, 3, 5);
+    cross_screen_mottle(easel, across_x, across_y, high_back_color, low_back_color, size, wid, 4, 3);
 
     let start_x = 30;
     let start_y = 30;
