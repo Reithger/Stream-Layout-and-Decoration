@@ -20,6 +20,8 @@ export function check_dark_borders(easel, canvas, wid, hei, size, counter, keywo
     }
 }
 
+//---  Backings   -----------------------------------------------------------------------------
+
 let color_block = [];
 
 let corner_block = [];
@@ -80,6 +82,8 @@ function draw_dark_backing(easel, wid, hei, size){
 
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
+
+//---  Borders   ------------------------------------------------------------------------------
 
 function draw_dark_souls_border(canvas, easel, wid, hei, size){
     if(color_block.length == 0){

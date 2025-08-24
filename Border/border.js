@@ -6,17 +6,60 @@ import {check_color_shift_borders} from "./BorderColorShift.js";
 import {check_dark_backings, check_dark_borders} from "./BorderDarkSouls.js";
 import {check_pokemon_backings, check_pokemon_borders} from "./BorderPokemon.js";
 
+/* counter tracks how many times the draw command has been called, used for animating*/
 let counter = 0
 
+/* Holds imported functions that test a keyword against a number of entries defined
+in that file; if a match is found, it draws that backing/border*/
 let backings = [check_pokemon_backings, check_dark_backings, check_lego_backings,
                 check_runescape_backings, check_flag_backings, check_votv_backings];
-
+/* These imported functions are expected to have the following arguments:
+    easel, canvas, wid, hei, size, counter, keyword
+    2D Context, HTML Canvas, int, int, int, int, String*/
 let borders = [check_pokemon_borders, check_dark_borders, check_lego_borders,
                 check_runescape_borders, check_votv_borders, check_color_shift_borders];
 
-//-- Variables for Flag Background  ---------------------------
-
+/* Calls the stream_border_draw function 30 times a second*/
 setInterval(stream_border_draw, 1000 / 30);
+
+/**
+ * Function called periodically to display a variety of borders and backings
+ * drawn onto an HTML canvas for decorative purposes.
+ * 
+ * Retrieves the canvas object (assumed to have the id value "canvas") from
+ * the HTML document, retrieves keywords associated to the otherwise unused
+ * attributes 'font-family' and 'content' in the main css style sheet which
+ * denote which backing and border designs to use.
+ * 
+ * Note: this has been designed in the context of the OBS Browser Source tool
+ * pointed at a local .html file that refers to this folder of .js files. That
+ * tool provides a simple accessor to the CSS sheet for modifying the two
+ * relevant attributes to 'hot-swap' designs easily.
+ * 
+ * This code was separated so that there is an interpretation function which takes
+ * a canvas HTML object and the two relevant keywords. That function is exported
+ * so you can import it into any context so long as you have that HTML canvas.
+ * 
+ * stream_border_draw is used in the context of OBS Browser Sources and calls on
+ * the draw_border function.
+ * 
+ * Note: To add new designs to this project:
+ *  - Make a new .js file
+ *  - Export a function that can test a String keyword for whether it matches whatever
+ *      term you want to use for your design.
+ *  - If the term matches, use the provided arguments to draw your design
+ *      Your function should take (easel, canvas, wid, hei, size, counter, keyword)
+ *      These are (2D Context, HTML Canvas, int, int, int, int, String)
+ *          size lets you dynamically alter how large to draw something
+ *          counter is an increasing value for each draw operation (animate over time)
+ *          keyword is the term you are testing
+ *  - Import that function to this file, and add it to the 'borders' or 'backings' list
+ *      of functions to have it automatically included in the process.
+ * 
+ * TODO: Way to automatically check files in the same folder for exported functions that
+ *  take the desired arguments so it's fully dynamic?
+ * 
+ */
 
 function stream_border_draw(){
     let canvas = document.getElementById("canvas")
@@ -35,6 +78,23 @@ function stream_border_draw(){
     draw_border(canvas, back_type, type);
 }
 
+/**
+ * This function takes an HTML canvas object and two strings; from this, it will
+ * draw the corresponding border outline and background that match the provided
+ * backing_type and border_type strings.
+ * 
+ * Just provide an HTML canvas and two valid strings, and this does the rest.
+ * 
+ * An example combo of valid strings would be "votv" or "dark" for both outline
+ * and background, or "pokeball" for outline and "poke_beach" for background.
+ * 
+ * TODO: Fourth argument for denoting the SIZE value? May not always be stable.
+ * 
+ * @param {*} canvas an HTML canvas object you want to draw a border onto
+ * @param {*} backing_type a String denoting the background design type
+ * @param {*} border_type a String denoting the outline design type
+ */
+
 export function draw_border(canvas, backing_type, border_type){
     let easel = canvas.getContext("2d")
     let SIZE = 8
@@ -44,10 +104,6 @@ export function draw_border(canvas, backing_type, border_type){
     let wid = canvas.width;
     let hei = canvas.height;
     
-    // Switch case structure for deciding which backdrop to draw for a border box (uses term in the 'content' attribute)
-    // Note: for a static, unchanging background, make sure you write the final image to the offscreenCanvas so you can copy it over
-    //  without doing the entire draw operation every time.
-
     for(let i = 0; i < backings.length; i++){
         if(backings[i](easel, canvas, wid, hei, SIZE, counter, backing_type)){
             break;
@@ -59,10 +115,21 @@ export function draw_border(canvas, backing_type, border_type){
             break;
         }
     }
-    // Switch case structure for deciding which border type to draw for a border box (uses term in the 'font-family' attribute)
 
     counter += 1;
 }
+
+/**
+ * Support function that uses the local access to the document to create a secondary canvas object
+ * that is not added to the DOM; it is used for getting an offscreen canvas that backgrounds can
+ * copy themselves onto so that on subsequent redraws it can just copy from this offscreen canvas.
+ * 
+ * Returns an HTML canvas object with the specified width and height
+ * 
+ * @param {*} wid 
+ * @param {*} hei 
+ * @returns 
+ */
 
 export function produce_canvas(wid, hei){
     let canvas = document.createElement("canvas");

@@ -1,5 +1,6 @@
-import { produce_canvas, darken_prop, lighten, darken, format_rgb_color_string_arr, draw_pattern_edge, draw_pattern_edge_sides} from "./border.js";
-import {draw_coral, cross_screen_vert_mottle, draw_petal_imprint, draw_blot, draw_footprint_imprint, draw_cross, mottle_layers} from "./BorderSupportShapes.js";
+import { produce_canvas, darken_prop, lighten, darken, format_rgb_color_string_arr, draw_pattern_edge} from "./border.js";
+import {draw_coral, draw_petal_imprint, draw_blot, draw_footprint_imprint, draw_cross} from "./BorderSupportShapes.js";
+import {cross_screen_vert_mottle, mottle_layers, cross_screen_mottle} from "./BorderSupportPattern.js";
 
 //---  Backgrounds   --------------------------------------------------------------------------
 
@@ -205,7 +206,6 @@ function draw_beach_backing(easel, canvas, wid, hei, size){
 
     //-- Water Background  ------------------------------------
 
-
 let basic_water_blue = [64, 112, 184];
 
 let bubble_blue = [120, 192, 232];
@@ -377,7 +377,7 @@ function draw_snow_box_backing(easel, canvas, wid, hei, size){
 
     let across_y = color_break;
 
-    cross_screen_mottle(easel, across_x, across_y, high_back_color, low_back_color, size, wid, 4, 3);
+    cross_screen_mottle(easel, across_x, across_y, high_back_color, low_back_color, size, wid, 5, 2);
 
     let start_x = 30;
     let start_y = 30;
