@@ -3,7 +3,9 @@
 
  These are intended to be run via the local-file Browser Source option in OBS (point it at the HTML file with the .js file in the same repo) and will infer their own size from the OBS element to format appropriately.
 
- Just download the Borders folder from this repository and point Browser source at the border.html file, then configure the Custom CSS field as shown in the screenshot in **Border/Backing Types and their Keywords for Border.html**.
+ Just download the Borders folder from this repository and point an OB Browser Source at the border.html file, then configure the Custom CSS field as shown in the screenshot in **Border/Backing Types and their Keywords for Border.html**.
+
+ 'border.js' also exports a function 'draw_border' that takes any HTML Canvas and two keyword strings, so you can import the behavior of this project into other contexts than just OBS Browser Sources.
 
  The Raindrop program would just require downloading the raindrop.html and raindrop.js files, put them in the same place, point a browser source at raindrop.html, and then watch the color droplets spread!
 
@@ -18,8 +20,8 @@
  - rainbow-pulse
  - runescape
  - lego
- - votv (voices of the void)
- - dark (dark souls 2)
+ - votv
+ - dark
  - pokeball
 
  Your options for backings (content) are:
@@ -37,12 +39,27 @@
  - dark (dark souls 2)
  - poke_grass (pokemon grass pokebox decal)
  - poke_arcade
+ - poke_snow
+ - poke_foot
+ - poke_seafloor
+ - poke_beach
+ - poke_lava
 
  The specific implementations of these are in a variety of JS files that are linked to in border.js, which border.html references. You need to have all of those in the same place for it to work.
+
+ Run the file "ListBorderTypes.js" in the terminal to see an internally managed and (ideally) up to date list of available keywords.
 
  More are likely to be added as time goes on and I get more ideas!
 
 ## Examples
+
+ Example of border.html being used to design a video thumbnail
+
+ <img width="1920" height="1080" alt="Screenshot 2025-08-23 12-08-37" src="https://github.com/user-attachments/assets/ffcf0558-0d20-451f-9840-f708b87deb41" />
+
+ Example of border.html being used to do a display in OBS with newer themed backgrounds and my cat
+
+ <img width="1920" height="1080" alt="Screenshot 2025-08-24 09-09-44" src="https://github.com/user-attachments/assets/d6980775-c762-49e7-a7db-59191d170859" />
 
  Example of Border.html being used to do a display in OBS around the space a GBA emulator would go, with Pokemon themed borders.
 
