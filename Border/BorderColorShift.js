@@ -13,6 +13,10 @@ export function check_color_shift_borders(easel, canvas, wid, hei, size, counter
     }
 }
 
+export function keywords_border(){
+    return ["rainbow-tour", "rainbow-pulse"];
+}
+
 //--  Borders   -----------------------------------------------
 
 let under_colors = []

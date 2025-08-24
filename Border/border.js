@@ -2,7 +2,7 @@ import {check_lego_backings, check_lego_borders, keywords_back as lego_back, key
 import {check_flag_backings, keywords_back as flag_back} from "./BorderFlag.js";
 import {check_runescape_backings, check_runescape_borders, keywords_back as runescape_back, keywords_border as runescape_border} from "./BorderRunescape.js";
 import {check_votv_borders, check_votv_backings, keywords_back as votv_back, keywords_border as votv_border} from "./BorderVotV.js";
-import {check_color_shift_borders} from "./BorderColorShift.js";
+import {check_color_shift_borders, keywords_border as color_border} from "./BorderColorShift.js";
 import {check_dark_backings, check_dark_borders, keywords_back as dark_back, keywords_border as dark_border} from "./BorderDarkSouls.js";
 import {check_pokemon_backings, check_pokemon_borders, keywords_back as poke_back, keywords_border as poke_border} from "./BorderPokemon.js";
 
@@ -23,7 +23,7 @@ let keywords_back_list = [poke_back, lego_back, votv_back, runescape_back,
                           flag_back, dark_back];
 
 let keywords_border_list = [poke_border, lego_border, votv_border, runescape_border,
-                            dark_border];
+                            dark_border, color_border];
 
 /* Calls the stream_border_draw function 30 times a second*/
 try{
