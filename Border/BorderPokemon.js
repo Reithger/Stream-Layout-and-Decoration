@@ -1,5 +1,5 @@
 import { produce_canvas, darken_prop, lighten, darken, format_rgb_color_string_arr, draw_pattern_edge, draw_pattern_edge_sides} from "./border.js";
-import {draw_coral, draw_petal_imprint, draw_blot, draw_footprint_imprint, draw_cross, simple_cross} from "./BorderSupportShapes.js";
+import {draw_coral, cross_screen_vert_mottle, draw_petal_imprint, draw_blot, draw_footprint_imprint, draw_cross, mottle_layers} from "./BorderSupportShapes.js";
 
 //---  Backgrounds   --------------------------------------------------------------------------
 
@@ -201,49 +201,6 @@ function draw_beach_backing(easel, canvas, wid, hei, size){
     }
 
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
-}
-
-function mottle_layers(easel, wid, hei, size, color_list, prop_list, smooth_list, sin_list, offset = 0){
-    let last_prop = 0;
-    easel.fillStyle = format_rgb_color_string_arr(color_list[0]);
-    easel.fillRect(0, 0, wid, hei);
-    for(let i = 0; i < color_list.length - 1; i++){
-        let color_one = color_list[i];
-        let color_two = color_list[i + 1];
-        let prop = prop_list[i];
-        easel.fillStyle = format_rgb_color_string_arr(color_two);
-        easel.fillRect(0, hei * prop, wid, hei * (1 - prop));
-        let sin_wid = sin_list[i][0];
-        let sin_trough = sin_list[i][1];
-        if(smooth_list[i]){
-            cross_screen_mottle_smooth(easel, 0, hei * prop, color_one, color_two, size, wid, sin_wid, sin_trough, offset);
-        }
-        else{
-            cross_screen_mottle(easel, 0, hei * prop, color_one, color_two, size, wid, sin_wid, sin_trough, sin_trough,offset);
-        }
-        last_prop = prop;
-    }
-}
-
-function cross_screen_vert_mottle(easel, start_x, start_y, color_one, color_two, color_three, size, wid, step_width, trough_height, offset = 0){
-    let ind = 0;
-
-    while(start_x < wid){
-        let val = Math.floor(Math.sin(.5 * Math.PI * (ind / step_width) - (1.25 - offset) * Math.PI) * trough_height);
-        vert_mottle(easel, start_x, start_y + val * size, color_one, color_two, color_three, size);
-        start_x += size * 2;
-        ind += 1;
-    }
-}
-
-function vert_mottle(easel, x, y, color_one, color_two, color_three, size){
-    easel.fillStyle = format_rgb_color_string_arr(color_one);
-    easel.fillRect(x, y, size, size);
-    easel.fillStyle = format_rgb_color_string_arr(color_two);
-    easel.fillRect(x, y + size, size, size);
-    easel.fillStyle = format_rgb_color_string_arr(color_three);
-    easel.fillRect(x, y + 2 * size, size, size);
-    easel.fillRect(x, y + 3 * size, size, size);
 }
 
     //-- Water Background  ------------------------------------
@@ -465,50 +422,6 @@ function draw_snow_box_backing(easel, canvas, wid, hei, size){
     }
 
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
-}
-
-function cross_screen_mottle(easel, start_x, start_y, color_one, color_two, size, wid, step_width, trough_height, clean_height = trough_height, offset = 0){
-    let ind = 0;
-
-    while(start_x < wid){
-        let val = Math.floor(Math.sin(.5 * Math.PI * (ind / step_width) - (1.25 - offset) * Math.PI) * trough_height);
-        mottle_block(easel, start_x, start_y + val * size, color_one, color_two, size, clean_height);
-        start_x += size * 2;
-        ind += 1;
-    }
-}
-
-function cross_screen_mottle_smooth(easel, start_x, start_y, color_one, color_two, size, wid, step_width, trough_height, offset = 0){
-    let ind = 0; //Math.floor(cap / 2);
-
-    while(start_x < wid){
-        let val = Math.floor(Math.sin(.5 * Math.PI * (ind / step_width) - (1.25 - offset) * Math.PI) * trough_height);
-        mottle_smooth(easel, start_x, start_y + val * size, color_one, color_two, size, trough_height);
-        start_x += size * 2;
-        ind += 1;
-    }
-}
-
-function mottle_block(easel, x, y, color_one, color_two, size, clean_height = 5){
-    easel.fillStyle = format_rgb_color_string_arr(color_one);
-    easel.fillRect(x, y, size, size);
-    easel.fillRect(x + size, y + size, size, size);
-    // This last fill of this color is to fix color discrepencies above/below this spot
-    easel.fillRect(x, y - size * clean_height, 2 * size, clean_height * size);
-    easel.fillStyle = format_rgb_color_string_arr(color_two);
-    easel.fillRect(x + size, y, size, size);
-    easel.fillRect(x, y + size, size, size);
-    // This last fill of this color is to fix color discrepencies above/below this spot
-    easel.fillRect(x, y + 2 * size, 2 * size, clean_height * size);
-}
-
-function mottle_smooth(easel, x, y, color_one, color_two, size, clean_height = 5){
-    easel.fillStyle = format_rgb_color_string_arr(color_one);
-    // This last fill of this color is to fix color discrepencies above/below this spot
-    easel.fillRect(x, y - size * clean_height, 2 * size, clean_height * size);
-    easel.fillStyle = format_rgb_color_string_arr(color_two);
-    // This last fill of this color is to fix color discrepencies above/below this spot
-    easel.fillRect(x, y + 2 * size, 2 * size, clean_height * size);
 }
 
     //-- Fossil Foot Background  ------------------------------
