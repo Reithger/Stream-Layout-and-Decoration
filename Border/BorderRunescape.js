@@ -1,6 +1,15 @@
 import { format_rgb_color_string, draw_pattern_edge} from "./border.js";
 
-export function check_runescape_backings(easel, canvas, wid, hei, size, counter, keyword){
+export function runescape_stuff(){
+    return {
+        "backing" : check_runescape_backings,
+        "keyword_back" : keywords_back,
+        "borders" : check_runescape_borders,
+        "keyword_border" : keywords_border
+    }
+}
+
+function check_runescape_backings(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "runescape":
             draw_runescape_backing(easel, wid, hei, 2);
@@ -10,11 +19,11 @@ export function check_runescape_backings(easel, canvas, wid, hei, size, counter,
     }
 }
 
-export function keywords_back(){
+function keywords_back(){
     return ["runescape"];
 }
 
-export function check_runescape_borders(easel, canvas, wid, hei, size, counter, keyword){
+function check_runescape_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "runescape":
             draw_runescape_border(canvas, easel, wid, hei, 2);
@@ -24,7 +33,7 @@ export function check_runescape_borders(easel, canvas, wid, hei, size, counter, 
     }
 }
 
-export function keywords_border(){
+function keywords_border(){
     return ["runescape"];
 }
 

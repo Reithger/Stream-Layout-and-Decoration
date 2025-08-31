@@ -1,6 +1,15 @@
 import { produce_canvas, format_rgb_color_string, lighten, darken, format_rgb_color_string_arr, draw_pattern_edge, draw_pattern_edge_sides} from "./border.js";
 
-export function check_dark_backings(easel, canvas, wid, hei, size, counter, keyword){
+export function dark_stuff(){
+    return {
+        "backing" : check_dark_backings,
+        "keyword_back" : keywords_back,
+        "borders" : check_dark_borders,
+        "keyword_border" : keywords_border
+    }
+}
+
+function check_dark_backings(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "dark":
             draw_dark_backing(easel, wid, hei, 4);
@@ -10,11 +19,11 @@ export function check_dark_backings(easel, canvas, wid, hei, size, counter, keyw
     }
 }
 
-export function keywords_back(){
+function keywords_back(){
     return ["dark"];
 }
 
-export function check_dark_borders(easel, canvas, wid, hei, size, counter, keyword){
+function check_dark_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "dark":
             draw_dark_souls_border(canvas, easel, wid, hei, 1);
@@ -24,7 +33,7 @@ export function check_dark_borders(easel, canvas, wid, hei, size, counter, keywo
     }
 }
 
-export function keywords_border(){
+function keywords_border(){
     return ["dark"];
 }
 

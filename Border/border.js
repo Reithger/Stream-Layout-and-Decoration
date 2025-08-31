@@ -1,29 +1,17 @@
-import {check_lego_backings, check_lego_borders, keywords_back as lego_back, keywords_border as lego_border} from "./BorderLego.js";
-import {check_flag_backings, keywords_back as flag_back} from "./BorderFlag.js";
-import {check_runescape_backings, check_runescape_borders, keywords_back as runescape_back, keywords_border as runescape_border} from "./BorderRunescape.js";
-import {check_votv_borders, check_votv_backings, keywords_back as votv_back, keywords_border as votv_border} from "./BorderVotV.js";
-import {check_color_shift_borders, keywords_border as color_border} from "./BorderColorShift.js";
-import {check_dark_backings, check_dark_borders, keywords_back as dark_back, keywords_border as dark_border} from "./BorderDarkSouls.js";
-import {check_pokemon_backings, check_pokemon_borders, keywords_back as poke_back, keywords_border as poke_border} from "./BorderPokemon.js";
+import {lego_stuff} from "./BorderLego.js";
+import {flag_stuff} from "./BorderFlag.js";
+import {runescape_stuff} from "./BorderRunescape.js";
+import {votv_stuff} from "./BorderVotV.js";
+import {color_shift_stuff} from "./BorderColorShift.js";
+import {dark_stuff} from "./BorderDarkSouls.js";
+import {pokemon_stuff} from "./BorderPokemon.js";
 
 /* counter tracks how many times the draw command has been called, used for animating*/
 let counter = 0
 
-/* Holds imported functions that test a keyword against a number of entries defined
-in that file; if a match is found, it draws that backing/border*/
-let backings = [check_pokemon_backings, check_dark_backings, check_lego_backings,
-                check_runescape_backings, check_flag_backings, check_votv_backings];
-/* These imported functions are expected to have the following arguments:
-    easel, canvas, wid, hei, size, counter, keyword
-    2D Context, HTML Canvas, int, int, int, int, String*/
-let borders = [check_pokemon_borders, check_dark_borders, check_lego_borders,
-                check_runescape_borders, check_votv_borders, check_color_shift_borders];
-
-let keywords_back_list = [poke_back, lego_back, votv_back, runescape_back,
-                          flag_back, dark_back];
-
-let keywords_border_list = [poke_border, lego_border, votv_border, runescape_border,
-                            dark_border, color_border];
+/* Each is a function returning an object containing key values "backing", "borders", "keyword_back", "keyword_border"*/
+//let border_designs = [pokemon_stuff];
+let border_designs = [lego_stuff, flag_stuff, runescape_stuff, votv_stuff, color_shift_stuff, dark_stuff, pokemon_stuff];
 
 /* Calls the stream_border_draw function 30 times a second*/
 try{
@@ -56,16 +44,26 @@ catch(err){
  * 
  * Note: To add new designs to this project:
  *  - Make a new .js file
- *  - Export a function that can test a String keyword for whether it matches whatever
- *      term you want to use for your design.
- *  - If the term matches, use the provided arguments to draw your design
- *      Your function should take (easel, canvas, wid, hei, size, counter, keyword)
- *      These are (2D Context, HTML Canvas, int, int, int, int, String)
- *          size lets you dynamically alter how large to draw something
- *          counter is an increasing value for each draw operation (animate over time)
- *          keyword is the term you are testing
- *  - Import that function to this file, and add it to the 'borders' or 'backings' list
- *      of functions to have it automatically included in the process.
+ *  - Export a function that returns an object with four 'key : value' pairs with
+ *      the keys "borders", "backing", "keyword_back", "keyword_border"; each of
+ *      these should map to a function.
+ *      - The "borders" function should take the arguments: 
+ *              (easel, canvas, wid, hei, size, counter, keyword)
+ *              (2D Context, HTML Canvas, int, int, int, int, String) in which:
+ *          The 'keyword' string should denote which drawing operation to perform
+ *          The 'counter' int denotes how many drawing operations have occured for animating
+ *              something over time
+ *          The 'size' int indicates how large things should be drawn (a scaling factor for
+ *              what is drawn that still needs to fit into the same width/height)
+ *      - The "backing" function should take the same arguments as the "borders" function,
+ *          in which it uses the 'keyword' string to decide which drawing operation to
+ *          perform for a visual backdrop using the provided arguments.
+ *      - The 'keyword_back' function should return a list of Strings, these being the keywords
+ *          that your "backing" function can match to
+ *      - The "keyword_border" function should return a list of Strings, these being the keywords
+ *          that your "borders" function can match to
+ *  - Import that function to this file, and add it to the 'border_designs' list so that it can
+ *      be integrated automatically into the workings of this file
  * 
  * TODO: Way to automatically check files in the same folder for exported functions that
  *  take the desired arguments so it's fully dynamic?
@@ -74,15 +72,16 @@ catch(err){
 
 function stream_border_draw(){
     let canvas = undefined;
+    let type = undefined;
     try{
         canvas = document.getElementById("canvas")
+        type = document.styleSheets[0].cssRules[0].style.getPropertyValue("font-family")
     }
     catch(err){
-        //If a canvas is not found, just bail
+        //If a canvas is not found, or we can't access the CSS Sheet yet, just bail
         return;
     }
 
-    let type = document.styleSheets[0].cssRules[0].style.getPropertyValue("font-family")
     let back_type = document.styleSheets[0].cssRules[0].style.getPropertyValue("content")
     back_type = back_type.slice(1, back_type.length - 1);
 
@@ -126,14 +125,16 @@ export function draw_border(canvas, backing_type, border_type){
     let wid = canvas.width;
     let hei = canvas.height;
     
-    for(let i = 0; i < backings.length; i++){
-        if(backings[i](easel, canvas, wid, hei, SIZE, counter, backing_type)){
+    for(let i = 0; i < border_designs.length; i++){
+        let backing = border_designs[i]()["backing"];
+        if(backing != null && backing(easel, canvas, wid, hei, SIZE, counter, backing_type)){
             break;
         }
     }
 
-    for(let i = 0; i < borders.length; i++){
-        if(borders[i](easel, canvas, wid, hei, SIZE, counter, border_type)){
+    for(let i = 0; i < border_designs.length; i++){
+        let border = border_designs[i]()["borders"];
+        if(border != null && border(easel, canvas, wid, hei, SIZE, counter, border_type)){
             break;
         }
     }
@@ -166,8 +167,8 @@ export function draw_border(canvas, backing_type, border_type){
 
 export function retrieve_backing_keywords(){
     let out = [];
-    for(let i = 0; i < keywords_back_list.length; i++){
-        out = out.concat([keywords_back_list[i]()]);
+    for(let i = 0; i < border_designs.length; i++){
+        out = out.concat([border_designs[i]()["keyword_back"]()]);
     }
     return out;
 }
@@ -187,8 +188,8 @@ export function retrieve_backing_keywords(){
 
 export function retrieve_border_keywords(){
     let out = [];
-    for(let i = 0; i < keywords_border_list.length; i++){
-        out = out.concat([keywords_border_list[i]()]);
+    for(let i = 0; i < border_designs.length; i++){
+        out = out.concat([border_designs[i]()["keyword_border"]()]);
     }
     return out;
 }

@@ -1,10 +1,19 @@
-import { produce_canvas, darken_prop, lighten, darken, format_rgb_color_string_arr, draw_pattern_edge} from "./border.js";
+import { produce_canvas, darken_prop, lighten, lighten_prop, darken, format_rgb_color_string_arr, draw_pattern_edge} from "./border.js";
 import {draw_coral, draw_petal_imprint, draw_blot, draw_footprint_imprint, draw_cross} from "./BorderSupportShapes.js";
-import {cross_screen_vert_mottle, mottle_layers, cross_screen_mottle} from "./BorderSupportPattern.js";
+import {cross_screen_vert_mottle, mottle_layers, cross_screen_mottle, cross_screen_mottle_smooth} from "./BorderSupportPattern.js";
 
 //---  Backgrounds   --------------------------------------------------------------------------
 
-export function check_pokemon_backings(easel, canvas, wid, hei, size, counter, keyword){
+export function pokemon_stuff(){
+    return {
+        "backing" : check_pokemon_backings,
+        "keyword_back" : keywords_back,
+        "borders" : check_pokemon_borders,
+        "keyword_border" : keywords_border
+    }
+}
+
+function check_pokemon_backings(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case 'poke_grass':
             draw_grass_box_backing(easel, canvas, wid, hei, 6);
@@ -32,12 +41,12 @@ export function check_pokemon_backings(easel, canvas, wid, hei, size, counter, k
     }
 }
 
-export function keywords_back(){
+function keywords_back(){
     return ["poke_grass", "poke_arcade", "poke_snow", "poke_foot", "poke_seafloor", "poke_beach",
             "poke_lava"];
 }
 
-export function check_pokemon_borders(easel, canvas, wid, hei, size, counter, keyword){
+function check_pokemon_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "pokeball":
             draw_pokeball_border(canvas, easel, wid, hei, 2);
@@ -47,7 +56,7 @@ export function check_pokemon_borders(easel, canvas, wid, hei, size, counter, ke
     }
 }
 
-export function keywords_border(){
+function keywords_border(){
     return ["pokeball"];
 }
 
@@ -150,7 +159,124 @@ function draw_lava_backing(easel, canvas, wid, hei, size){
         [false, false, false],
         [[4, 4], [6, 4], [12, 3]], 0);
 
+    let smoke_color_one = [222, 222, 222];
+    let smoke_color_two = darken(smoke_color_one);
+    let transp = [255, 255, 255, 0];
+
+    /*
+    cross_screen_mottle(easel, 0, convert_to_block(hei, .07, size), smoke_color_one, transp, size, wid, 4, 3, 0);
+    cross_screen_mottle(easel, 0, convert_to_block(hei, .07, size), smoke_color_two, transp, size, wid, 4, 3, 0, -.12);
+    cross_screen_mottle(easel, 0, convert_to_block(hei, .47, size), darken(smoke_color_one), transp, size, wid, 6, 4, 0, 0);
+    cross_screen_mottle(easel, 0, convert_to_block(hei, .47, size), darken(smoke_color_two), transp, size, wid, 6, 4, 0, -.12);
+    cross_screen_mottle(easel, 0, convert_to_block(hei, .76, size), darken(darken(smoke_color_one)), transp, size, wid, 12, 3, 0);
+    cross_screen_mottle(easel, 0, convert_to_block(hei, .76, size), darken(darken(smoke_color_two)), transp, size, wid, 12, 3, 0, -.12);
+    */
+   
+    // 2nd color region with vert space .4 * hei
+
+    let pos_x = size * 8;
+    let ind = 0;
+
+    let available_blocks = Math.floor((hei * .4) / size);
+    let available_vert_blocks = Math.floor(available_blocks / 3);
+
+    let start_point = Math.floor((hei * .18) / size) * size;
+
+    while(pos_x < wid){
+        let y_mod = ind % 2 ? size * available_vert_blocks : size * 2;
+        lava_drop(easel, pos_x, start_point + Math.floor(available_blocks / 3) * size + y_mod, darken_prop(lava_color, .18), lighten_prop(lava_color, .15), 7, 5, size);
+
+
+        let bubble_y = 0;
+        let ind_in = 0;
+        while(bubble_y < available_vert_blocks - 2){
+            draw_cross_contrast(easel, pos_x + size * (ind_in % 2 == 0 ? -1 : 5), start_point + y_mod + bubble_y * size, ind_in % 2 == 0 ? lighten(lava_color) : lighten(lighten(lava_color)), size);
+            bubble_y += 4;
+            ind_in += 1;
+        }
+
+        pos_x += 4 * size * 4;
+        ind += 1;
+    }
+
+
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+}
+
+function convert_to_block(hei, prop, size){
+    return Math.floor(hei * prop / size) * size;
+}
+
+function draw_cross_contrast(easel, x, y, color, size){
+    easel.fillStyle = format_rgb_color_string_arr(color);
+    
+    for(let i = 0; i < 3; i++){
+        for(let j = 0; j < 3; j++){
+            if(i % 2 != 0 || j % 2 != 0){
+                easel.fillRect(x + size * (i - 1), y + size * (j - 1), size, size);
+            }
+        }
+    }
+    easel.fillStyle = format_rgb_color_string_arr(lighten(color));
+    easel.fillRect(x, y, size, size);
+}
+
+function lava_drop(easel, x, y, color_in, color_out, blot_wid, blot_hei, block_size){
+    wide_blot(easel, x, y + 1 * block_size, color_out, blot_wid, blot_hei, block_size);
+
+    wide_blot(easel, x, y, lighten(color_out), blot_wid, blot_hei, block_size);
+
+    easel.fillStyle = format_rgb_color_string_arr(color_in);
+    easel.fillRect(x, y + block_size, block_size * 5, block_size * 2);
+    easel.fillRect(x + block_size * 2, y + block_size * 1, block_size, block_size);
+    easel.fillRect(x + block_size * 3, y + block_size * 3, block_size, block_size);
+    easel.fillRect(x + block_size * 1, y + block_size * 3, block_size, block_size);
+    //wide_blot(easel, x + block_size * 1, y + block_size, color_in, blot_wid - 2, blot_hei - 2, block_size);
+
+    easel.fillStyle = format_rgb_color_string_arr(darken_prop(color_out, .10));
+    for(let i = 1; i < blot_wid - 2; i += 2){
+        easel.fillRect(x + block_size * i, y, block_size, block_size);
+    }
+    easel.fillRect(x + block_size * 0, y + block_size * 1, block_size, block_size);
+    easel.fillRect(x + block_size * 4, y + block_size * 1, block_size, block_size);
+
+    easel.fillStyle = format_rgb_color_string_arr(color_out);
+    
+    easel.fillRect(x + block_size * 2, y + block_size * 0, block_size, block_size);
+    easel.fillRect(x + block_size * 1, y + block_size * 2, block_size, block_size);
+    easel.fillRect(x + block_size * 3, y + block_size * 2, block_size, block_size);
+}
+
+function spooky_guy_face(easel, x, y, color_in, color_out, blot_wid, blot_hei, block_size){
+    wide_blot(easel, x, y + 1 * block_size, color_out, blot_wid, blot_hei, block_size);
+
+    wide_blot(easel, x, y, lighten(color_out), blot_wid, blot_hei, block_size);
+
+    wide_blot(easel, x + block_size * 1, y + block_size, color_in, blot_wid - 2, blot_hei - 2, block_size);
+
+    easel.fillStyle = format_rgb_color_string_arr(color_out);
+    for(let i = 1; i < blot_wid - 2; i += 2){
+        easel.fillRect(x + block_size * i, y, block_size, block_size);
+    }
+    easel.fillStyle = format_rgb_color_string_arr(lighten(color_out));
+    easel.fillRect(x + block_size * 2, y + block_size * (blot_hei - 2), block_size * 3, block_size);
+    easel.fillRect(x + block_size * 3, y + block_size * (blot_hei - 3), block_size * 1, block_size);
+    easel.fillRect(x + block_size * 1, y + block_size * (blot_hei - 4), block_size * 1, block_size);
+    easel.fillRect(x + block_size * 5, y + block_size * (blot_hei - 4), block_size * 1, block_size);
+}
+
+function wide_blot(easel, x, y, color, blot_wid, blot_hei, block_size){
+    easel.fillStyle = format_rgb_color_string_arr(color);
+    for(let i = 1; i < blot_wid - 1; i++){
+        for(let j = 0; j < blot_hei; j++){
+            easel.fillRect(x + block_size * (i - 1), y + block_size * (j), block_size, block_size);
+        }
+    }
+    for(let i = 0; i < blot_wid; i++){
+        for(let j = 1; j < blot_hei - 1; j++){
+            easel.fillRect(x + block_size * (i - 1), y + block_size * (j), block_size, block_size);
+        }
+    }
 }
 
     //-- Beach Background  ------------------------------------
@@ -520,13 +646,23 @@ function initialize_arcade_corner(){
 
     //-- Pokeball Border  -------------------------------------
 
+let has_drawn = false;
+
 function draw_pokeball_border(canvas, easel, wid, hei, size){
+    if(has_drawn){
+        return;
+    }
     if(color_block == undefined){
         initialize_pokeball_border();
         initialize_pokeball_corner();
     }
 
     draw_pattern_edge(canvas, easel, color_block, corner_block, wid, hei, size, false);
+    if(canvas.offscreenCanvas != undefined){
+        canvas.offscreenCanvas.getContext("2d").clearRect(0, 0, wid, hei);
+        canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+        has_drawn = true;
+    }
 }
 
 let color_edge = [74, 66, 82];
@@ -584,13 +720,14 @@ function initialize_pokeball_corner(){
     set_colors(corner_block, darken(color_salmon), [3, 1, 4, 1, 4, 2]);
     set_colors(corner_block, darken(darken(color_salmon)), [1, 1, 2, 2, 2, 3, 3, 2, 2, 0, 3, 0, 4, 0, 0, 2, 0, 3, 0, 4, 1, 5]);
     set_colors(corner_block, off_white, [4, 4, 5, 3, 5, 2, 5, 6, 6, 5, 1, 6, 6, 1]);
+    set_colors(corner_block, undefined, [0, 0, 0, 1, 1, 0]);
 
     corner_block = double_array(corner_block);
 }
 
 function set_colors(block, color, coord_arr){
     for(let i = 0; i < coord_arr.length; i += 2){
-        block[coord_arr[i]][coord_arr[i+1]] = format_rgb_color_string_arr(color);
+        block[coord_arr[i]][coord_arr[i+1]] = color === undefined ? undefined : format_rgb_color_string_arr(color);
     }
 }
 

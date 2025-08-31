@@ -6,7 +6,16 @@ let block_width = 1;
 // The pixel size of each lego block (so, 3x3 square or 5x5 square)
 let block_size = 5;
 
-export function check_lego_backings(easel, canvas, wid, hei, size, counter, keyword){
+export function lego_stuff(){
+    return {
+        "backing" : check_lego_backings,
+        "keyword_back" : keywords_back,
+        "borders" : check_lego_borders,
+        "keyword_border" : keywords_border
+    }
+}
+
+function check_lego_backings(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case 'lego':
             draw_lego_backing(canvas, easel, wid, hei, 5, undefined);
@@ -31,11 +40,11 @@ export function check_lego_backings(easel, canvas, wid, hei, size, counter, keyw
     }
 }
 
-export function keywords_back(){
+function keywords_back(){
     return ["lego", "lego_g", "lego_r", "lego_c", "lego_b", "lego_br"];
 }
 
-export function check_lego_borders(easel, canvas, wid, hei, size, counter, keyword){
+function check_lego_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "lego":
             draw_lego_border(canvas, easel, wid, hei, 3, counter);
@@ -45,7 +54,7 @@ export function check_lego_borders(easel, canvas, wid, hei, size, counter, keywo
     }
 }
 
-export function keywords_border(){
+function keywords_border(){
     return ["lego"];
 }
 

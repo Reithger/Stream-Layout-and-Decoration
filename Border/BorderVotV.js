@@ -1,6 +1,15 @@
 import { produce_canvas, lighten, format_rgb_color_string_arr, draw_pattern_edge } from "./border.js";
 
-export function check_votv_backings(easel, canvas, wid, hei, size, counter, keyword){
+export function votv_stuff(){
+    return {
+        "backing" : check_votv_backings,
+        "keyword_back" : keywords_back,
+        "borders" : check_votv_borders,
+        "keyword_border" : keywords_border
+    }
+}
+
+function check_votv_backings(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "votv":
             draw_votv_backing(canvas, easel, wid, hei, size);
@@ -10,11 +19,11 @@ export function check_votv_backings(easel, canvas, wid, hei, size, counter, keyw
     }
 }
 
-export function keywords_back(){
+function keywords_back(){
     return ["votv"];
 }
 
-export function check_votv_borders(easel, canvas, wid, hei, size, counter, keyword){
+function check_votv_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "votv":
             draw_votv_border(canvas, easel, wid, hei, 3);
@@ -24,7 +33,7 @@ export function check_votv_borders(easel, canvas, wid, hei, size, counter, keywo
     }
 }
 
-export function keywords_border(){
+function keywords_border(){
     return ["votv"];
 }
 

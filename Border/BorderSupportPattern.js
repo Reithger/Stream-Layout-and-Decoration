@@ -30,11 +30,12 @@ export function mottle_layers(easel, wid, hei, size, color_list, prop_list, smoo
         easel.fillRect(0, hei * prop, wid, hei * (1 - prop));
         let sin_wid = sin_list[i][0];
         let sin_trough = sin_list[i][1];
+        let y = Math.floor(hei * prop / size) * size;
         if(smooth_list[i]){
-            cross_screen_mottle_smooth(easel, 0, hei * prop, color_one, color_two, size, wid, sin_wid, sin_trough, offset);
+            cross_screen_mottle_smooth(easel, 0, y, color_one, color_two, size, wid, sin_wid, sin_trough, offset);
         }
         else{
-            cross_screen_mottle(easel, 0, hei * prop, color_one, color_two, size, wid, sin_wid, sin_trough, sin_trough,offset);
+            cross_screen_mottle(easel, 0, y, color_one, color_two, size, wid, sin_wid, sin_trough, sin_trough,offset);
         }
         last_prop = prop;
     }
@@ -129,7 +130,7 @@ function mottle_smooth(easel, x, y, color_one, color_two, size, clean_height = 5
     easel.fillRect(x, y - size * clean_height, 2 * size, clean_height * size);
     easel.fillStyle = format_rgb_color_string_arr(color_two);
     // This last fill of this color is to fix color discrepencies above/below this spot
-    easel.fillRect(x, y + 2 * size, 2 * size, clean_height * size);
+    easel.fillRect(x, y, 2 * size, clean_height * size);
 }
 
 function vert_mottle(easel, x, y, color_one, color_two, color_three, size){

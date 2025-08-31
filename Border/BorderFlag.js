@@ -3,7 +3,16 @@ let rainbow = ["red", "orange", "yellow", "green", "blue", "purple"];
 
 let trans = ["cyan", "pink", "white", "pink", "cyan"];
 
-export function check_flag_backings(easel, canvas, wid, hei, size, counter, keyword){
+export function flag_stuff(){
+    return {
+        "backing" : check_flag_backings,
+        "keyword_back" : keywords_back,
+        "borders" : null,
+        "keyword_border" : null
+    }
+}
+
+function check_flag_backings(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case 'rainbow':
             draw_flag_backing(easel, wid, hei, 12, rainbow, counter);
@@ -19,7 +28,7 @@ export function check_flag_backings(easel, canvas, wid, hei, size, counter, keyw
     }
 }
 
-export function keywords_back(){
+function keywords_back(){
     return ["rainbow", "trans", "transbian"];
 }
 

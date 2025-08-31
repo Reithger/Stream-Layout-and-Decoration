@@ -1,6 +1,15 @@
 import { format_rgb_color_string } from "./border.js";
 
-export function check_color_shift_borders(easel, canvas, wid, hei, size, counter, keyword){
+export function color_shift_stuff(){
+    return {
+        "backing" : null,
+        "keyword_back" : null,
+        "borders" : check_color_shift_borders,
+        "keyword_border" : keywords_border
+    }
+}
+
+function check_color_shift_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case 'rainbow-tour':
             draw_edge_tour_point(easel, wid, hei, size, counter)
@@ -13,7 +22,7 @@ export function check_color_shift_borders(easel, canvas, wid, hei, size, counter
     }
 }
 
-export function keywords_border(){
+function keywords_border(){
     return ["rainbow-tour", "rainbow-pulse"];
 }
 
