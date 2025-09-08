@@ -95,7 +95,14 @@ let color_block = [];
 
 let corner_block = [];
 
+let border_canvas = undefined;
+
 export function draw_votv_border(canvas, easel, wid, hei, size){
+    if(border_canvas != undefined){
+        easel.drawImage(border_canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+        return;
+    }
+    border_canvas = produce_canvas(wid, hei);
     if(color_block.length == 0){
         initialize_votv_edge_style();
     }
@@ -104,7 +111,7 @@ export function draw_votv_border(canvas, easel, wid, hei, size){
         initialize_votv_corner_style();
     }
 
-    draw_pattern_edge(canvas, easel, color_block, corner_block, wid, hei, size, false);
+    draw_pattern_edge(border_canvas, border_canvas.getContext("2d"), color_block, corner_block, wid, hei, size, false);
 }
 
 function initialize_votv_edge_style(){

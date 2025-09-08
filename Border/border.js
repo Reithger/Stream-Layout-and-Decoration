@@ -5,13 +5,14 @@ import {votv_stuff} from "./BorderVotV.js";
 import {color_shift_stuff} from "./BorderColorShift.js";
 import {dark_stuff} from "./BorderDarkSouls.js";
 import {pokemon_stuff} from "./BorderPokemon.js";
+import {halloween_stuff} from "./BorderHalloween.js";
 
 /* counter tracks how many times the draw command has been called, used for animating*/
 let counter = 0
 
 /* Each is a function returning an object containing key values "backing", "borders", "keyword_back", "keyword_border"*/
 //let border_designs = [pokemon_stuff];
-let border_designs = [lego_stuff, flag_stuff, runescape_stuff, votv_stuff, color_shift_stuff, dark_stuff, pokemon_stuff];
+let border_designs = [lego_stuff, flag_stuff, runescape_stuff, votv_stuff, color_shift_stuff, dark_stuff, pokemon_stuff, halloween_stuff];
 
 /* Calls the stream_border_draw function 30 times a second*/
 try{
@@ -118,7 +119,7 @@ function stream_border_draw(){
 
 export function draw_border(canvas, backing_type, border_type){
     let easel = canvas.getContext("2d")
-    let SIZE = 8
+    let SIZE = 4
 
     easel.lineWidth = 1
 

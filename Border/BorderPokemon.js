@@ -51,13 +51,16 @@ function check_pokemon_borders(easel, canvas, wid, hei, size, counter, keyword){
         case "pokeball":
             draw_pokeball_border(canvas, easel, wid, hei, 2);
             return true;
+        case "pokeball_halloween":
+            draw_pokeball_halloween_border(canvas, easel, wid, hei, 2);
+            return true;
         default:
             return false;
     }
 }
 
 function keywords_border(){
-    return ["pokeball"];
+    return ["pokeball", "pokeball_halloween"];
 }
 
     //-- Arcade Background  -----------------------------------
@@ -627,6 +630,8 @@ let inside_color_yellow = [239, 214, 74];
 
 let outside_color_taupe = [255, 231, 148];
 
+let border_canvas = undefined;
+
 export function draw_arcade_border(easel, canvas, wid, hei, size){
     if(color_block == undefined){
         initialize_arcade_border();
@@ -649,7 +654,8 @@ function initialize_arcade_corner(){
 let has_drawn = false;
 
 function draw_pokeball_border(canvas, easel, wid, hei, size){
-    if(has_drawn){
+    if(border_canvas != undefined){
+        easel.drawImage(border_canvas, 0, 0, wid, hei, 0, 0, wid, hei);
         return;
     }
     if(color_block == undefined){
@@ -657,12 +663,28 @@ function draw_pokeball_border(canvas, easel, wid, hei, size){
         initialize_pokeball_corner();
     }
 
-    draw_pattern_edge(canvas, easel, color_block, corner_block, wid, hei, size, false);
-    if(canvas.offscreenCanvas != undefined){
-        canvas.offscreenCanvas.getContext("2d").clearRect(0, 0, wid, hei);
-        canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
-        has_drawn = true;
+    border_canvas = produce_canvas(wid, hei);
+
+    draw_pattern_edge(border_canvas, border_canvas.getContext("2d"), color_block, corner_block, wid, hei, size, false);
+
+    easel.drawImage(border_canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+}
+
+function draw_pokeball_halloween_border(canvas, easel, wid, hei, size){
+    if(border_canvas != undefined){
+        easel.drawImage(border_canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+        return;
     }
+    if(color_block == undefined){
+        initialize_pokeball_halloween_border();
+        initialize_pokeball_halloween_corner();
+    }
+
+    border_canvas = produce_canvas(wid, hei);
+
+    draw_pattern_edge(border_canvas, border_canvas.getContext("2d"), color_block, corner_block, wid, hei, size, false);
+
+    easel.drawImage(border_canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
 let color_edge = [74, 66, 82];
@@ -697,14 +719,6 @@ function initialize_pokeball_border(){
     }
 }
 
-function push_color(array, color, amount){
-    let arr = [];
-    for(let i = 0; i < amount; i++){
-        arr.push(color);
-    }
-    array.push(arr);
-}
-
 function initialize_pokeball_corner(){
     corner_block = [];
     for(let i = 0; i < 7; i++){
@@ -720,9 +734,71 @@ function initialize_pokeball_corner(){
     set_colors(corner_block, darken(color_salmon), [3, 1, 4, 1, 4, 2]);
     set_colors(corner_block, darken(darken(color_salmon)), [1, 1, 2, 2, 2, 3, 3, 2, 2, 0, 3, 0, 4, 0, 0, 2, 0, 3, 0, 4, 1, 5]);
     set_colors(corner_block, off_white, [4, 4, 5, 3, 5, 2, 5, 6, 6, 5, 1, 6, 6, 1]);
-    set_colors(corner_block, undefined, [0, 0, 0, 1, 1, 0]);
+    set_colors(corner_block, darken_prop(color_blue, .5), [0, 0, 0, 1, 1, 0]);
 
     corner_block = double_array(corner_block);
+}
+
+let pumpkin_orange = [247, 95, 28];
+
+let pumpkin_yellow = [255, 154, 0];
+
+let witch_purple = [136, 30, 228];
+
+let apple_green = [133, 226, 31];
+
+function initialize_pokeball_halloween_border(){
+    let amount = 8;
+    color_block = [];
+    push_color(color_block, color_edge, amount);
+    let arr = [];
+    for(let i = 0; i < amount; i++){
+        arr.push(Math.floor((i + 2) / 4) % 2 == 0 ? witch_purple : pumpkin_orange);
+    }
+    color_block.push(arr);
+    push_color(color_block, off_white, amount);
+    push_color(color_block, back_white, amount);
+    arr = [];
+    for(let i = 0; i < amount; i++){
+        arr.push(Math.floor((i + 2) / 4) % 2 == 0 ? witch_purple : pumpkin_orange);
+    }
+    color_block.push(arr);
+    push_color(color_block, off_white, amount);
+    push_color(color_block, back_white, amount);
+
+    for(let i = 0; i < color_block.length; i++){
+        for(let j = 0; j < color_block[i].length; j++){
+            color_block[i][j] = format_rgb_color_string_arr(color_block[i][j]);
+        }
+    }
+}
+
+function initialize_pokeball_halloween_corner(){
+    corner_block = [];
+    for(let i = 0; i < 7; i++){
+        let arr = [];
+        for(let j = 0; j < 7; j++){
+            arr.push(undefined);
+        }
+        corner_block.push(arr);
+    }
+    set_colors(corner_block, back_white, [3, 3, 2, 5, 3, 5, 4, 5, 5, 4, 6, 6]);
+    set_colors(corner_block, color_edge, [4, 3, 3, 4, 5, 1, 6, 2, 6, 3, 6, 4, 5, 5, 4, 6, 3, 6, 2, 6, 6, 0, 5, 0, 0, 5, 0, 6]);
+    set_colors(corner_block, apple_green, [2, 1, 1, 2, 1, 3, 1, 4, 2, 4]);
+    set_colors(corner_block, darken(apple_green), [3, 1, 4, 1, 4, 2]);
+    set_colors(corner_block, darken(darken(apple_green)), [1, 1, 2, 2, 2, 3, 3, 2, 2, 0, 3, 0, 4, 0, 0, 2, 0, 3, 0, 4, 1, 5]);
+    set_colors(corner_block, off_white, [4, 4, 5, 3, 5, 2, 5, 6, 6, 5, 1, 6, 6, 1]);
+    set_colors(corner_block, darken_prop(color_blue, .5), [0, 0, 0, 1, 1, 0]);
+
+    corner_block = double_array(corner_block);
+}
+
+function push_color(array, color, amount){
+    let arr = [];
+    for(let i = 0; i < amount; i++){
+        arr.push(color);
+    }
+    array.push(arr);
 }
 
 function set_colors(block, color, coord_arr){
