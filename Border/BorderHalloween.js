@@ -1,4 +1,4 @@
-import {draw_pattern_edge, format_rgb_color_string_arr, produce_canvas, lighten, darken, darken_prop} from "./border.js";
+import {draw_pattern_edge, format_rgb_color_string_arr, produce_canvas, lighten, darken, darken_prop, lighten_prop} from "./border.js";
 import {mottle_layers} from "./BorderSupportPattern.js";
 
 export function halloween_stuff(){
@@ -97,24 +97,212 @@ function draw_halloween_style_backing(easel, canvas, wid, hei, size, counter){
     draw_ghost(easel, 18 * size, (16 + adjust) * size, size, ghost_grey, eyes, pumpkin_yellow, toggle, toggle);
 
     
-    draw_ghost(easel, 18 * size, (50 + adjust_ot) * size, size, ghost_grey, eyes, pumpkin_yellow, !toggle, toggle);
+    //draw_ghost(easel, 18 * size, (50 + adjust_ot) * size, size, ghost_grey, eyes, pumpkin_yellow, !toggle, toggle);
+
+    //candy(easel, 20 * size, (56 + adjust_ot) * size, size, pumpkin_yellow, pumpkin_orange, true);
+
+    witch_hat(easel, 20 * size, (56) * size, size, phantom_black, blood_red);
+
+    candy(easel, 20 * size, (113 + adjust_ot) * size, size, apple_green, pumpkin_orange, false);
 
     draw_jack_o_lantern(easel, 18 * size, (90 + Math.floor(adjust / 3)) * size, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, true, true, false, false, adjust, toggle);
 
-    draw_pumpkin(easel, 18 * size, (115 + Math.floor(adjust_ot / 3)) * size, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), adjust_ot, false, toggle);
+    //draw_pumpkin(easel, 18 * size, (115 + Math.floor(adjust_ot / 3)) * size, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), adjust_ot, false, toggle);
     
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
 function witch_hat(easel, x, y, size, outline_color, fill_color){
-    easel.fillStyle = format_rgb_color_string_arr(outline_color);
 
+    draw_blocky_circle(easel, x, y, size, 12, outline_color, false, false);
+    draw_blocky_circle(easel, x + 5 * size, y - 2 * size, size, 10, outline_color, false, false);
+    draw_blocky_circle(easel, x - 5 * size, y + 1 * size, size, 10, outline_color, false, false);
+
+    draw_blocky_circle(easel, x, y, size, 10, fill_color, false, true);
+    draw_blocky_circle(easel, x + 5 * size, y - 2 * size, size, 8, fill_color, false, true);
+    draw_blocky_circle(easel, x - 5 * size, y + 1 * size, size, 8, fill_color, false, true);
+
+}
+
+function candy(easel, x, y, size, main_color, accent_color, forward = true){
+    let border_color = darken_prop(main_color, .2);
+
+    let backing_color = main_color;
+
+    let trim_color = lighten_prop(accent_color, .1);
+    
+    diagonal_oval(easel, x, y, size, 12, backing_color, border_color, forward);
+
+    candy_twist_upper(easel, x, y, size, border_color, backing_color, trim_color, forward);
+    candy_twist_lower(easel, x, y, size, border_color, backing_color, trim_color, forward);
+
+    easel.fillStyle = format_rgb_color_string_arr(accent_color);
+/*
+    for(let i = 0; i < 10; i+= 2){
+        //easel.fillRect(x - (2 - i) * size, y - (6 - i / 2) * size, (i == 8 ? 1 : 2) * size, 3 * size);
+    }
+
+    for(let i = 0; i < 12; i+= 2){
+        easel.fillRect(x - (5 - i) * size, y - (3 - i / 2) * size, (i == 10 ? 1 : 2) * size, (i == 10 ? 2 : 3) * size);
+    }
+
+    for(let i = 0; i < 10; i+= 2){
+        //easel.fillRect(x - (6 - i) * size, y + (1 + i / 2) * size, (i == 8 ? 1 : 2) * size, (i == 8 ? 2 : 3) * size);
+    }
+*/
+
+    diagonal_oval(easel, x - 0 * size, y + 0 * size, size, 8, trim_color, accent_color, !forward);
+
+    easel.fillStyle = format_rgb_color_string_arr(backing_color);
+
+    for(let i = 0; i < 3; i++){
+        let x_off = i * 3;
+        let y_off = i * 3;
+        easel.fillRect(x - (forward ? (5 - x_off) : (5 - x_off)) * size, y - (forward ? (3 - y_off) : (-3 + y_off)) * size, 2 * size, size);
+        easel.fillRect(x - (forward ? (3 - x_off) : (3 - x_off)) * size, y - (forward ? (2 - y_off) : (-1 + y_off)) * size, size, 2 * size);
+    }
+
+    for(let i = 0; i < 4; i++){
+        if(forward){
+            easel.fillRect(x + (4 - i * 2) * size, y + (2 - i * 2) * size, size, size);
+        }
+        else{
+            easel.fillRect(x - (2 - i * 2) * size, y + (4 - i * 2) * size, size, size);
+        }
+    }
+    /*
+    easel.fillRect(x - 5 * size, y - 3 * size, 2 * size, 1 * size);
+    easel.fillRect(x - 3 * size, y - 2 * size, 1 * size, 2 * size);
+    easel.fillRect(x - 2 * size, y - 0 * size, 2 * size, 1 * size);
+    easel.fillRect(x - 0 * size, y + 1 * size, 1 * size, 2 * size);
+    easel.fillRect(x + 1 * size, y + 3 * size, 2 * size, 1 * size);
+    easel.fillRect(x + 3 * size, y + 4 * size, 1 * size, 2 * size);
+
+    easel.fillRect(x + 2 * size, y + 0 * size, 1 * size, 1 * size);
+    easel.fillRect(x - 0 * size, y - 2 * size, 1 * size, 1 * size);
+
+    easel.fillRect(x - 2 * size, y - 4 * size, 1 * size, 1 * size);
+    easel.fillRect(x + 4 * size, y + 2 * size, 1 * size, 1 * size);
+
+
+    //diagonal_oval(easel, x - 0 * size, y + 0 * size, size, 2, backing_color, backing_color, false);
+/*
+    diagonal_oval(easel, x - 3 * size, y + 3 * size, size, 4, accent_color, darken(trim_color), false);
+    diagonal_oval(easel, x - 3 * size, y + 3 * size, size, 2, trim_color, darken_prop(trim_color, .15), false);
+
+    diagonal_oval(easel, x + 2 * size, y - 2 * size, size, 6, accent_color, darken(trim_color), false);
+    diagonal_oval(easel, x + 2 * size, y - 2 * size, size, 4, trim_color, darken_prop(trim_color, .15), false);
+*/
+    //diagonal_oval(easel, x + 4 * size, y - 4 * size, size, 2, accent_color, darken(trim_color), false);
+    //diagonal_oval(easel, x - 4 * size, y + 4 * size, size, 2, accent_color, darken(trim_color), false);
 
 
 }
 
-function candy(easel, x, y, size, main_color, accent_color){
+function candy_twist_lower(easel, x, y, size, border_color, back_color, alt_color, forward = true){
+    easel.fillStyle = format_rgb_color_string_arr(back_color);
 
+    if(forward){
+        easel.fillRect(x - 8 * size, y + 7 * size, 3 * size, 6 * size);
+        easel.fillRect(x - 12 * size, y + 6 * size, 4 * size, 3 * size);
+        easel.fillRect(x - 9 * size, y + 9 * size, 1 * size, 1 * size);
+    }
+    else{
+        easel.fillRect(x + 6 * size, y + 7 * size, 3 * size, 6 * size);
+        easel.fillRect(x + 9 * size, y + 6 * size, 4 * size, 3 * size);
+        easel.fillRect(x + 9 * size, y + 9 * size, 1 * size, 1 * size);
+    }
+
+    easel.fillStyle = format_rgb_color_string_arr(border_color);
+
+    if(forward){
+        easel.fillRect(x - 6 * size, y + 7 * size, 1 * size, 3 * size);
+        easel.fillRect(x - 5 * size, y + 10 * size, 1 * size, 3 * size);
+        easel.fillRect(x - 9 * size, y + 6 * size, 3 * size, 1 * size);
+        easel.fillRect(x - 13 * size, y + 5 * size, 4 * size, 1 * size);
+    }
+    else{
+        easel.fillRect(x + 6 * size, y + 7 * size, 1 * size, 3 * size);
+        easel.fillRect(x + 5 * size, y + 10 * size, 1 * size, 4 * size);
+        easel.fillRect(x + 7 * size, y + 6 * size, 3 * size, 1 * size);
+        easel.fillRect(x + 10 * size, y + 5 * size, 3 * size, 1 * size);
+    }
+
+    for(let i = 0; i < 8; i++){
+        easel.fillStyle = format_rgb_color_string_arr(border_color);
+        if(forward){
+            easel.fillRect(x - (14 - i) * size, y + (6 + i) * size, 1 * size, 1 * size);
+        }
+        else{
+            easel.fillRect(x + (6 + i) * size, y + (14 - i - (i == 7 ? 1 : 0)) * size, 1 * size, (i == 7 ? 2 : 1) * size);
+        }
+        easel.fillStyle = format_rgb_color_string_arr(i == 7 && forward ? border_color : alt_color);
+        if(forward){
+            easel.fillRect(x - (13 - i) * size, y + (6 + i) * size, (i == 7 ? 1 : 2) * size, 1 * size);
+        }
+        else{
+            easel.fillRect(x + (5 + i + (i == 0 ? 1 : 0)) * size, y + (13 - i) * size, (i == 0 || i == 7 ? 1 : 2) * size, 1 * size);
+        }
+    }
+}
+
+function candy_twist_upper(easel, x, y, size, border_color, back_color, alt_color, forward = true){
+    easel.fillStyle = format_rgb_color_string_arr(back_color);
+
+    if(forward){
+        easel.fillRect(x + 6 * size, y - 12 * size, 3 * size, 6 * size);
+        easel.fillRect(x + 9 * size, y - 8 * size, 4 * size, 3 * size);
+        easel.fillRect(x + 9 * size, y - 9 * size, 1 * size, 1 * size);
+    }
+    else{
+        easel.fillRect(x - 8 * size, y - 12 * size, 3 * size, 6 * size);
+        easel.fillRect(x - 12 * size, y - 8 * size, 4 * size, 3 * size);
+        easel.fillRect(x - 9 * size, y - 9 * size, 1 * size, 1 * size);
+    }
+
+    easel.fillStyle = format_rgb_color_string_arr(border_color);
+    if(forward){
+        easel.fillRect(x + 7 * size, y - 6 * size, 3 * size, size);
+        easel.fillRect(x + 10 * size, y - 5 * size, 3 * size, size);
+        easel.fillRect(x + 6 * size, y - 9 * size, 1 * size, 3 * size);
+        easel.fillRect(x + 5 * size, y - 13 * size, 1 * size, 4 * size);
+    }
+    else{
+        easel.fillRect(x - 9 * size, y - 6 * size, 3 * size, size);
+        easel.fillRect(x - 13 * size, y - 5 * size, 4 * size, size);
+        easel.fillRect(x - 6 * size, y - 9 * size, 1 * size, 3 * size);
+        easel.fillRect(x - 5 * size, y - 12 * size, 1 * size, 3 * size);
+    }
+
+    for(let i = 0; i < 8; i++){
+        easel.fillStyle = format_rgb_color_string_arr(border_color);
+        if(forward){
+            easel.fillRect(x + (6 + i) * size, y - (14 - i) * size, 1 * size, 1 * size);
+        }
+        else{
+            easel.fillRect(x - (7 + i) * size, y - (13 - i) * size, 1 * size, 1 * size);
+        }
+        easel.fillStyle = format_rgb_color_string_arr((forward && i == 7) || (!forward && i == 0) ? border_color : alt_color);
+        if(forward){
+            easel.fillRect(x + (6 + i) * size, y - (13 - i) * size, 1 * size, (i == 7 ? 1 : 2) * size);
+        }
+        else{
+            easel.fillRect(x - (6 + i) * size, y - (13 - i) * size, (i == 0 ? 1 : 2) * size,  size);
+        }
+    }
+
+}
+
+function diagonal_oval(easel, x, y, size, scale, main_color, border_color, forward = true){
+    let mod = forward ? 2 : -2;
+    
+    draw_blocky_circle(easel, x, y, size, scale, border_color, false, false);
+    draw_blocky_circle(easel, x + mod * size, y - 2 * size, size, scale - 2, border_color, false, false);
+    draw_blocky_circle(easel, x - mod * size, y + 2 * size, size, scale - 2, border_color, false, false);
+
+    draw_blocky_circle(easel, x, y, size, scale - 2, main_color, false, true);
+    draw_blocky_circle(easel, x + mod * size, y - 2 * size, size, scale - 4, main_color, false, true);
+    draw_blocky_circle(easel, x - mod * size, y + 2 * size, size, scale - 4, main_color, false, true);
 }
 
 function draw_jack_o_lantern(easel, x, y, size, outline_color, fill_color, stem_color, cut_out_color, happy_eye = true, smile = true, creepy = false, pumpkin_change = false, wiggle_animation = 0, effect_toggle = false){
