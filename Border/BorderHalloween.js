@@ -12,8 +12,11 @@ export function halloween_stuff(){
 
 function check_halloween_backings(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
-        case "halloween":
-            draw_halloween_style_backing(easel, canvas, wid, hei, size, counter);
+        case "halloween_collage_one":
+            draw_halloween_collage_one_backing(easel, canvas, wid, hei, size, counter);
+            return true;
+        case "halloween_collage_two":
+            draw_halloween_collage_two_backing(easel, canvas, wid, hei, size, counter);
             return true;
         default:
             return false;
@@ -21,7 +24,7 @@ function check_halloween_backings(easel, canvas, wid, hei, size, counter, keywor
 }
 
 function keywords_back(){
-    return ["halloween"];
+    return ["halloween_collage_one", "halloween_collage_two"];
 }
 
 function check_halloween_borders(easel, canvas, wid, hei, size, counter, keyword){
@@ -59,13 +62,13 @@ let apple_green = [133, 226, 31];
 
 let ghost_grey = [156, 182, 195];
 
-let phantom_black = [0, 0, 0];
+let phantom_black = [3, 12, 22];
 
 let blood_red = [138, 3, 3];
 
 let toggle = false;
 
-function draw_halloween_style_backing(easel, canvas, wid, hei, size, counter){
+function draw_halloween_collage_one_backing(easel, canvas, wid, hei, size, counter){
     let animate = 4;
     if(canvas.offscreenCanvas != undefined && counter % animate != 0){
         easel.drawImage(canvas.offscreenCanvas, 0, 0);
@@ -94,22 +97,131 @@ function draw_halloween_style_backing(easel, canvas, wid, hei, size, counter){
     let adjust = posits[posit % posits.length];
     let adjust_ot = posits[(posit + 3) % posits.length];
 
-    draw_ghost(easel, 18 * size, (16 + adjust) * size, size, ghost_grey, eyes, pumpkin_yellow, toggle, toggle);
+    let y_pos = 22 * size;
+    let meta_counter = 0;
+
+    while(y_pos + 24 * size < hei){
+        let counter = 0;
+        let x_pos = meta_counter % 2 == 0 ? 20 * size : 30 * size;
+
+        while(x_pos + 16 * size < wid){
+            switch(counter % 4){
+                case 0:
+                    if(meta_counter % 2 == 0){
+                        draw_ghost(easel, x_pos, y_pos + adjust * size, size, ghost_grey, eyes, pumpkin_yellow, toggle, toggle);
+                    }
+                    else{
+                        candy(easel, x_pos, y_pos + adjust_ot * size, size, pumpkin_yellow, darken(apple_green), true);
+                    }
+                    break;
+                case 1:
+                    if(meta_counter % 2 == 0){
+                        draw_jack_o_lantern(easel, x_pos, y_pos + (Math.floor(adjust / 3)) * size, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, true, false, true, false, adjust, toggle);
+                    }
+                    else{
+                        draw_ghost(easel, x_pos, y_pos + adjust * size, size, ghost_grey, eyes, pumpkin_yellow, !toggle, toggle);
+                    }
+                    break;
+                case 2:
+                    if(meta_counter % 2 == 0){
+                        candy(easel, x_pos, y_pos + adjust_ot * size, size, apple_green, pumpkin_orange, false);
+                    }
+                    else{
+                        draw_jack_o_lantern(easel, x_pos, y_pos + (Math.floor(adjust / 3)) * size, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, true, true, false, false, adjust, toggle);
+                    }
+                    break;
+                case 3:
+                    if(meta_counter % 2 == 0){
+                        draw_jack_o_lantern(easel, x_pos, y_pos + (Math.floor(adjust / 3)) * size, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, true, true, false, true, adjust, toggle);
+                    }
+                    else{
+                        draw_ghost(easel, x_pos, y_pos + adjust * size, size, ghost_grey, eyes, pumpkin_yellow, toggle, toggle);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            x_pos += 30 * size;
+            counter += 1;
+        }
+
+
+        y_pos += 40 * size;
+        meta_counter += 1;
+    }
+
+    //draw_ghost(easel, 18 * size, (16 + adjust) * size, size, ghost_grey, eyes, pumpkin_yellow, toggle, toggle);
 
     
     //draw_ghost(easel, 18 * size, (50 + adjust_ot) * size, size, ghost_grey, eyes, pumpkin_yellow, !toggle, toggle);
 
     //candy(easel, 20 * size, (56 + adjust_ot) * size, size, pumpkin_yellow, pumpkin_orange, true);
 
-    witch_hat(easel, 20 * size, (56) * size, size, phantom_black, blood_red);
+    //witch_hat(easel, 20 * size, (56) * size, size, phantom_black, blood_red);
 
-    candy(easel, 20 * size, (113 + adjust_ot) * size, size, apple_green, pumpkin_orange, false);
+    //candy(easel, 20 * size, (113 + adjust_ot) * size, size, apple_green, pumpkin_orange, false);
 
-    draw_jack_o_lantern(easel, 18 * size, (90 + Math.floor(adjust / 3)) * size, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, true, true, false, false, adjust, toggle);
+    //draw_jack_o_lantern(easel, 18 * size, (90 + Math.floor(adjust / 3)) * size, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, true, true, false, false, adjust, toggle);
 
     //draw_pumpkin(easel, 18 * size, (115 + Math.floor(adjust_ot / 3)) * size, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), adjust_ot, false, toggle);
     
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+}
+
+function draw_halloween_collage_two_backing(easel, canvas, wid, hei, size, counter){
+    let animate = 4;
+    if(canvas.offscreenCanvas != undefined && counter % animate != 0){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
+
+    if(toggle){
+        toggle = counter % (animate * 64) == 0 ? !toggle : toggle;
+    }
+    else{
+        toggle = counter % (animate * 16) == 0 ? !toggle : toggle;
+    }
+
+    mottle_layers(easel, wid, hei, size, 
+        [witch_purple, darken_prop(witch_purple, .15), darken_prop(witch_purple, .35), darken_prop(witch_purple, .55)],
+        [.2, .5, .8],
+        [false, false, false],
+        [[6, 4], [6, 4], [6, 4]], 0);
+
+
+    let posit = counter / animate;
+
+    let posits = [-2, -2, -1, 0, 1, 1, 2, 2, 2, 1, 1, 0, -1, -2, -2, -2];
+    let adjust = posits[posit % posits.length];
+    let adjust_ot = posits[(posit + 3) % posits.length];
+
+    let x_pos = 52 * size;
+    let y_pos = (Math.floor(hei / size)  * size) - 12 * size;
+
+    let counter_alt = 0;
+    while(x_pos + 32 * size < wid){
+        let smile = counter_alt % 2 == 0;
+        let eyes = counter_alt % 3 < 2;
+        let creepy = counter_alt % 4 == 0;
+        let anim_frame = posits[(posit + counter_alt) % posits.length];
+        draw_jack_o_lantern(easel, x_pos, y_pos, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, eyes, smile, creepy, false, anim_frame, Math.floor(counter / 64) % 12 != counter_alt);
+        counter_alt += 1;
+        x_pos += (counter_alt % 2 == 0 ? 32 : 35) * size;
+    }
+                 
+    candy(easel, 18 * size, 18 * size, size, pumpkin_yellow, darken(apple_green), true);
+    candy(easel, Math.floor(wid / size) * size - 17 * size, 17 * size, size, apple_green, pumpkin_orange, false);
+    candy(easel, 18 * size, Math.floor(hei / size) * size - 18 * size, size, blood_red, witch_purple, false);
+    candy(easel, Math.floor(wid / size) * size - 17 * size, Math.floor(hei / size) * size - 18 * size, size, phantom_black, [222, 222, 222], true);
+
+    let mid_x = Math.floor(wid / 2 / size) * size;
+    let mid_y = Math.floor(hei / 2 / size) * size;
+
+    let dist = 52 * size;
+
+    draw_ghost(easel, mid_x - dist, mid_y + adjust, size, ghost_grey, darken(ghost_grey), pumpkin_yellow, true, true);
+    draw_ghost(easel, mid_x + dist, mid_y + adjust_ot, size, ghost_grey, darken(ghost_grey), pumpkin_yellow, true, true);
 }
 
 function witch_hat(easel, x, y, size, outline_color, fill_color){
@@ -564,11 +676,13 @@ function draw_pumpkin(easel, x, y, size, outline_color, fill_color, stem_color, 
 }
 
 function draw_ghost(easel, x, y, size, color_one, color_two, effect_color, fill = true, effect_toggle = false){
-    easel.fillStyle= format_rgb_color_string_arr(color_one);
+    easel.fillStyle= format_rgb_color_string_arr([0, 0, 0]);
 
     let scale = 16;
 
     let half_scale = scale / 2;
+
+    y -= 6 * size;
 
     if(fill){
         draw_blocky_circle(easel, x, y, size, scale, darken(color_one), true, false);
@@ -620,6 +734,7 @@ function draw_ghost(easel, x, y, size, color_one, color_two, effect_color, fill 
         //easel.fillRect(x + (i - 1) * size, y + (1 + vert) * size, size, size);
         easel.fillRect(x + (i + 1) * size, y + (2 + vert) * size, size, size);
     }
+/* */
 
 }
 
