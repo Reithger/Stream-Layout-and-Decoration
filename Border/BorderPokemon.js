@@ -16,25 +16,25 @@ export function pokemon_stuff(){
 function check_pokemon_backings(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case 'poke_grass':
-            draw_grass_box_backing(easel, canvas, wid, hei, 6);
+            draw_grass_box_backing(easel, canvas, wid, hei, size == undefined ? 6 : size);
             return true;
         case 'poke_arcade':
-            draw_arcade_mat_backing(easel, canvas, wid, hei, 12);
+            draw_arcade_mat_backing(easel, canvas, wid, hei, size == undefined ? 12 : size);
             return true;
         case 'poke_snow':
-            draw_snow_box_backing(easel, canvas, wid, hei, 6);
+            draw_snow_box_backing(easel, canvas, wid, hei, size == undefined ? 6 : size);
             return true;
         case 'poke_foot':
-            draw_footprint_backing(easel, canvas, wid, hei, 6);
+            draw_footprint_backing(easel, canvas, wid, hei, size == undefined ? 6 : size);
             return true;
         case 'poke_seafloor':
-            draw_poke_water_backing(easel, canvas, wid, hei, 6);
+            draw_poke_water_backing(easel, canvas, wid, hei, size === undefined ? 6 : size);
             return true;
         case 'poke_beach':
-            draw_beach_backing(easel, canvas, wid, hei, 3);
+            draw_beach_backing(easel, canvas, wid, hei, size == undefined ? 3 : size);
             return true;
         case 'poke_lava':
-            draw_lava_backing(easel, canvas, wid, hei, 6);
+            draw_lava_backing(easel, canvas, wid, hei, size == undefined ? 6 : size);
             return true;
         default:
             return false;
@@ -49,10 +49,10 @@ function keywords_back(){
 function check_pokemon_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "pokeball":
-            draw_pokeball_border(canvas, easel, wid, hei, 2);
+            draw_pokeball_border(canvas, easel, wid, hei, size == undefined ? 2 : size);
             return true;
         case "pokeball_halloween":
-            draw_pokeball_halloween_border(canvas, easel, wid, hei, 2);
+            draw_pokeball_halloween_border(canvas, easel, wid, hei, size == undefined ? 2 : size);
             return true;
         default:
             return false;

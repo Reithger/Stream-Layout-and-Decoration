@@ -85,6 +85,17 @@ function stream_border_draw(){
 
     let back_type = document.styleSheets[0].cssRules[0].style.getPropertyValue("content")
     back_type = back_type.slice(1, back_type.length - 1);
+    let custom_size = undefined;
+
+    try{
+        let size = document.styleSheets[0].cssRules[0].style.getPropertyValue("font-size");
+        if(size.length > 2){
+            custom_size = parseInt(size.substring(0, size.length - 2), 10);
+        }
+    }
+    catch(err){
+        custom_size = undefined;
+    }
 
     let wid = window.innerWidth
     let hei = window.innerHeight
@@ -93,7 +104,8 @@ function stream_border_draw(){
         canvas.width = wid
         canvas.height = hei
     }
-    draw_border(canvas, back_type, type);
+    draw_border(canvas, back_type, type, custom_size);
+
 }
 
 /**
@@ -117,9 +129,8 @@ function stream_border_draw(){
  * @param {*} border_type a String denoting the outline design type
  */
 
-export function draw_border(canvas, backing_type, border_type){
+export function draw_border(canvas, backing_type, border_type, size){
     let easel = canvas.getContext("2d")
-    let SIZE = 4
 
     easel.lineWidth = 1
 
@@ -128,14 +139,14 @@ export function draw_border(canvas, backing_type, border_type){
     
     for(let i = 0; i < border_designs.length; i++){
         let backing = border_designs[i]()["backing"];
-        if(backing != null && backing(easel, canvas, wid, hei, SIZE, counter, backing_type)){
+        if(backing != null && backing(easel, canvas, wid, hei, size, counter, backing_type)){
             break;
         }
     }
 
     for(let i = 0; i < border_designs.length; i++){
         let border = border_designs[i]()["borders"];
-        if(border != null && border(easel, canvas, wid, hei, SIZE, counter, border_type)){
+        if(border != null && border(easel, canvas, wid, hei, 4, counter, border_type)){
             break;
         }
     }

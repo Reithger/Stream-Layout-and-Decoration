@@ -13,10 +13,10 @@ export function halloween_stuff(){
 function check_halloween_backings(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "halloween_collage_one":
-            draw_halloween_collage_one_backing(easel, canvas, wid, hei, size, counter);
+            draw_halloween_collage_one_backing(easel, canvas, wid, hei, size == undefined ? 4 : size, counter);
             return true;
         case "halloween_collage_two":
-            draw_halloween_collage_two_backing(easel, canvas, wid, hei, size, counter);
+            draw_halloween_collage_two_backing(easel, canvas, wid, hei, size == undefined ? 4 : size, counter);
             return true;
         default:
             return false;
