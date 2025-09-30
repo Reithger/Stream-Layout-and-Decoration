@@ -18,13 +18,16 @@ function check_halloween_backings(easel, canvas, wid, hei, size, counter, keywor
         case "halloween_collage_two":
             draw_halloween_collage_two_backing(easel, canvas, wid, hei, size == undefined ? 4 : size, counter);
             return true;
+        case "halloween_sky":
+            draw_halloween_sky_backing(easel, canvas, wid, hei, size == undefined ? 4 : size, counter);
+            return true;
         default:
             return false;
     }
 }
 
 function keywords_back(){
-    return ["halloween_collage_one", "halloween_collage_two"];
+    return ["halloween_collage_one", "halloween_collage_two", "halloween_sky"];
 }
 
 function check_halloween_borders(easel, canvas, wid, hei, size, counter, keyword){
@@ -32,13 +35,16 @@ function check_halloween_borders(easel, canvas, wid, hei, size, counter, keyword
         case "halloween":
             draw_halloween_style_border(easel, canvas, wid, hei, 2, counter);
             return true;
+        case "halloween_pill":
+            draw_halloween_pill_border(easel, canvas, wid, hei, 2, counter);
+            return true;
         default:
             return false;
     }
 }
 
 function keywords_border(){
-    return ["halloween"];
+    return ["halloween", "halloween_pill"];
 }
 
 //---  Backings   -----------------------------------------------------------------------------
@@ -50,6 +56,9 @@ function keywords_border(){
  *  - Graveyard similar to pumpkin patch design but with wrought-iron fence across bottom section
  *  - Purple backing with accent shapes drawn onto it (witch hat, broom, pumpkin), maybe have them float across screen too or have accents that shine periodically (pumpkin eyes)
  *  - 
+ * 
+ *  Megaman health bar pill border pattern with halloween colors inside
+ *  Orange halloween night with clouds and bats background type
  */
 
 let pumpkin_orange = [247, 95, 28];
@@ -68,7 +77,126 @@ let blood_red = [138, 3, 3];
 
 let toggle = false;
 
-function draw_halloween_collage_one_backing(easel, canvas, wid, hei, size, counter){
+function draw_halloween_sky_backing(easel, canvas, wid, hei, size, counter){
+    let animate = 4;
+    if(canvas.offscreenCanvas != undefined && counter % animate != 0){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
+
+    let display_vert = false;
+    let display_horz = false;
+    if(wid / hei < .33){
+        display_vert = true
+    }
+    else if (hei / wid < .33){
+        display_horz = true
+    }
+
+    if(display_horz){
+        mottle_layers(easel, wid, hei, size, 
+            [darken_prop(pumpkin_orange, .15), darken_prop(pumpkin_orange, .35)],
+            [.5],
+            [false],
+            [[6, 4]], 0);
+    } else if(display_vert){
+        mottle_layers(easel, wid, hei, size, 
+            [darken(witch_purple), witch_purple, lighten_prop(witch_purple, .25), lighten_prop(witch_purple, .45), darken_prop(pumpkin_orange, .05), darken_prop(pumpkin_orange, .15), darken_prop(pumpkin_orange, .35), darken_prop(pumpkin_orange, .55)],
+            [.1, .2, .3, .45, .55, .65, .8],
+            [false, false, false, false, false, false, false],
+            [[6, 4], [6, 4], [6, 4], [6, 4], [6, 4], [6, 4], [6, 4]], 0);
+    } else {
+        mottle_layers(easel, wid, hei, size, 
+            [darken(witch_purple), witch_purple, darken_prop(pumpkin_orange, .05), darken_prop(pumpkin_orange, .15), darken_prop(pumpkin_orange, .35), darken_prop(pumpkin_orange, .55)],
+            [.2, .4, .6, .75, .85],
+            [false, false, false, false, false],
+            [ [6, 4], [6, 4], [6, 4], [6, 4], [6, 4]], 0);
+    }
+
+    let posit = counter / animate;
+
+    let posits = [-2, -2, -1, 0, 1, 1, 2, 2, 2, 1, 1, 0, -1, -2, -2, -2];
+    let adjust = posits[posit % posits.length];
+    let adjust_ot = posits[(posit + 6) % posits.length];
+
+    let y_start = size * 24;
+    let y_step = size * 32;
+    let x_step = display_vert ? size * 40 : size * 60;
+    let loc_counter = 0
+    while(y_start < hei - y_step / 2){
+        let x_start = loc_counter % 2 == 0 ? (size * 2) : (size * 2 + x_step * 3 / 5);
+        x_start += display_vert ? 0 : 12 * size;
+        x_start = clean_pos(x_start, size)
+        // Around each cloud, have a few bat archetypes (a few scattered in front/behind, swarm in front/behind, use toggle to prompt swarm to fly around it?)
+        while(x_start < wid - x_step / 3){
+            let loc_y = y_start + (loc_counter % 2 == 0 ? (!display_horz ? adjust : adjust - 2 * size) : (!display_horz ? adjust_ot : adjust_ot + 2 * size));
+            let alt_y = y_start + (loc_counter % 2 != 0 ? (!display_horz ? adjust : adjust - 2 * size) : (!display_horz ? adjust_ot : adjust_ot + 2 * size));
+            draw_cloud(easel, x_start, loc_y, size, darken_prop(ghost_grey, .1));
+            for(let i = 0; i < 3; i++){
+                draw_bat(easel, x_start + i * 12 * size, alt_y - 4 * size + (i % 2 == 0 ? -2 : 2) * size, size, i % 2 == 0)
+            }
+            loc_counter += display_horz ? 1 : 0
+            x_start += x_step
+        }
+
+        y_start += y_step
+        loc_counter++
+    }
+
+    //draw_bat(easel, 30 *  size, 30 * size, size, true);
+    //draw_bat(easel, 30 *  size, 36 * size, size, false);
+    
+    canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+}
+
+function draw_bat(easel, x, y, size, large = true){
+    easel.fillStyle = format_rgb_color_string_arr(phantom_black)
+
+    if(large){
+        easel.fillRect(x - 3 * size, y - size, size, 3 * size);
+        easel.fillRect(x + 3 * size, y - size, size, 3 * size);
+        easel.fillRect(x - size, y - size, size * 3, size)
+        easel.fillRect(x - 2 * size, y, size, size);
+        easel.fillRect(x + 2 * size, y, size, size);
+        easel.fillRect(x - size, y + size, size, size);
+        easel.fillRect(x, y, size, size);
+        easel.fillRect(x + size, y + size, size, size);
+    }
+    else {
+        easel.fillRect(x - size, y, 3 * size, size);
+        easel.fillRect(x - 2 * size, y + size, size, size);
+        easel.fillRect(x, y + size, size, size);
+        easel.fillRect(x + 2 * size, y + size, size, size);
+    }
+}
+
+// Will use the large size bat along with dots to imply more further away
+function draw_bat_swarm(easel, x, y, size){
+
+}
+
+function draw_cloud(easel, x, y, size, color){
+    // The first set draws the outline
+    for(let i = 0; i < 4; i++){
+        draw_blocky_circle(easel, x + 4 * size * i, y - 2 * size * i, size, 12, darken(color), false, true)
+    }
+    for(let i = 0; i < 5; i++){
+        draw_blocky_circle(easel, x + 5 * size * i, y + (i % 2 == 0 ? 1 : -1) * size, size, 12, darken(color), false, true)
+    }
+    draw_blocky_circle(easel, x + 16 * size, y - 4 * size, size, 12, darken(color), false, true)
+
+    // The second set draws the lighter internal color by overlapping the outline's interior
+    for(let i = 0; i < 4; i++){
+        draw_blocky_circle(easel, x + 4 * size * i, y - 2 * size * i, size, 10, color, false, true)
+    }
+    for(let i = 0; i < 5; i++){
+        draw_blocky_circle(easel, x + 5 * size * i, y + (i % 2 == 0 ? 1 : -1) * size, size, 10, color, false, true)
+    }
+    draw_blocky_circle(easel, x + 16 * size, y - 4 * size, size, 10, color, false, true)
+}
+
+function draw_halloween_collage_one_backing(easel, canvas, wid, hei, size, counter){ 
     let animate = 4;
     if(canvas.offscreenCanvas != undefined && counter % animate != 0){
         easel.drawImage(canvas.offscreenCanvas, 0, 0);
@@ -97,26 +225,35 @@ function draw_halloween_collage_one_backing(easel, canvas, wid, hei, size, count
     let adjust = posits[posit % posits.length];
     let adjust_ot = posits[(posit + 3) % posits.length];
 
-    let y_pos = 22 * size;
     let meta_counter = 0;
 
-    while(y_pos + 24 * size < hei){
-        let counter = 0;
-        let x_pos = meta_counter % 2 == 0 ? 20 * size : 30 * size;
+    let y_step = 36 * size;
+    let x_step = 30 * size;
 
-        while(x_pos + 16 * size < wid){
+    let vert_edge = (hei - Math.floor(hei / y_step) * y_step) / 2;
+    let horz_edge = (wid - Math.floor(wid / x_step) * x_step) / 2;
+
+    let y_pos = vert_edge / 2 + y_step / 2;
+    y_pos = clean_pos(y_pos, size)
+
+    while(y_pos + (y_step / 2) < hei){
+        let counter = 0;
+        let x_pos = x_step / 2 + (meta_counter % 2 == 0 ? horz_edge : horz_edge + x_step / 2);
+        x_pos = clean_pos(x_pos, size)
+
+        while(x_pos + (x_step / 2) < wid){
             switch(counter % 4){
                 case 0:
                     if(meta_counter % 2 == 0){
                         draw_ghost(easel, x_pos, y_pos + adjust * size, size, ghost_grey, eyes, pumpkin_yellow, toggle, toggle);
                     }
                     else{
-                        candy(easel, x_pos, y_pos + adjust_ot * size, size, pumpkin_yellow, darken(apple_green), true);
+                        draw_candy_prefab(easel, x_pos, y_pos + adjust_ot * size, size, 1, true);
                     }
                     break;
                 case 1:
                     if(meta_counter % 2 == 0){
-                        draw_jack_o_lantern(easel, x_pos, y_pos + (Math.floor(adjust / 3)) * size, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, true, false, true, false, adjust, toggle);
+                        draw_jack_lantern_prefab(easel, x_pos, y_pos + (Math.floor(adjust / 3)), size, 1, adjust, toggle)
                     }
                     else{
                         draw_ghost(easel, x_pos, y_pos + adjust * size, size, ghost_grey, eyes, pumpkin_yellow, !toggle, toggle);
@@ -124,15 +261,15 @@ function draw_halloween_collage_one_backing(easel, canvas, wid, hei, size, count
                     break;
                 case 2:
                     if(meta_counter % 2 == 0){
-                        candy(easel, x_pos, y_pos + adjust_ot * size, size, apple_green, pumpkin_orange, false);
+                        draw_candy_prefab(easel, x_pos, y_pos + adjust_ot * size, size, 2, true);
                     }
                     else{
-                        draw_jack_o_lantern(easel, x_pos, y_pos + (Math.floor(adjust / 3)) * size, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, true, true, false, false, adjust, toggle);
+                        draw_jack_lantern_prefab(easel, x_pos, y_pos + (Math.floor(adjust / 3)), size, 2, adjust, toggle)
                     }
                     break;
                 case 3:
                     if(meta_counter % 2 == 0){
-                        draw_jack_o_lantern(easel, x_pos, y_pos + (Math.floor(adjust / 3)) * size, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, true, true, false, true, adjust, toggle);
+                        draw_jack_lantern_prefab(easel, x_pos, y_pos + (Math.floor(adjust / 3)), size, 3, adjust, toggle)
                     }
                     else{
                         draw_ghost(easel, x_pos, y_pos + adjust * size, size, ghost_grey, eyes, pumpkin_yellow, toggle, toggle);
@@ -141,12 +278,12 @@ function draw_halloween_collage_one_backing(easel, canvas, wid, hei, size, count
                 default:
                     break;
             }
-            x_pos += 30 * size;
+            x_pos += x_step;
             counter += 1;
         }
 
 
-        y_pos += 40 * size;
+        y_pos += y_step;
         meta_counter += 1;
     }
 
@@ -166,6 +303,10 @@ function draw_halloween_collage_one_backing(easel, canvas, wid, hei, size, count
     //draw_pumpkin(easel, 18 * size, (115 + Math.floor(adjust_ot / 3)) * size, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), adjust_ot, false, toggle);
     
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+}
+
+function clean_pos(num, size) {
+    return (Math.floor(num / size) * size)
 }
 
 function draw_halloween_collage_two_backing(easel, canvas, wid, hei, size, counter){
@@ -309,6 +450,40 @@ function candy(easel, x, y, size, main_color, accent_color, forward = true){
     //diagonal_oval(easel, x - 4 * size, y + 4 * size, size, 2, accent_color, darken(trim_color), false);
 
 
+}
+
+function draw_candy_prefab(easel, x_pos, y_pos, size, type, orient){
+    switch(type){
+        case 1:
+            candy(easel, x_pos, y_pos, size, pumpkin_yellow, darken(apple_green), orient);
+            break;
+        case 2:
+            candy(easel, x_pos, y_pos, size, apple_green, pumpkin_orange, orient);
+            break;
+        case 3:
+            candy(easel, x_pos, y_pos, size, phantom_black, [222, 222, 222], orient);
+            break;
+        default:
+            candy(easel, x_pos, y_pos, size, apple_green, pumpkin_orange, orient);
+            break;
+    }
+}
+
+function draw_jack_lantern_prefab(easel, x_pos, y_pos, size, type, anim_frame, toggle){
+    switch(type){
+        case 1:
+            draw_jack_o_lantern(easel, x_pos, y_pos, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, true, false, true, false, anim_frame, toggle);
+            break;
+        case 2:
+            draw_jack_o_lantern(easel, x_pos, y_pos, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, true, true, false, false, anim_frame, toggle);    
+            break;
+        case 3:
+            draw_jack_o_lantern(easel, x_pos, y_pos, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, true, true, false, true, anim_frame, toggle);
+            break;
+        default:
+            draw_jack_o_lantern(easel, x_pos, y_pos, size, pumpkin_orange, pumpkin_yellow, darken(apple_green), phantom_black, true, false, true, false, anim_frame, toggle);
+            break;
+    }
 }
 
 function candy_twist_lower(easel, x, y, size, border_color, back_color, alt_color, forward = true){
@@ -771,6 +946,82 @@ let color_block = [];
 let corner_block = [];
 
 let border_canvas = undefined;
+
+function draw_halloween_pill_border(easel, canvas, wid, hei, size, counter) {
+    if(border_canvas != undefined){
+        easel.drawImage(border_canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+        return;
+    }
+    border_canvas = produce_canvas(wid, hei);
+    if(color_block.length == 0){
+        initialize_pill_border();
+        initialize_pill_corner();
+    }
+
+    
+    draw_pattern_edge(border_canvas, border_canvas.getContext("2d"), color_block, corner_block, wid, hei, size, false);
+}
+
+function initialize_pill_border(){
+    let depth = 7;
+    let num_pills = 8;
+    let pill_depth = 4;
+    for(let i = 0; i < depth * 1; i++){
+        let use = [];
+        for(let i = 0; i < (pill_depth + 1) * (num_pills); i++){
+            use.push(format_rgb_color_string_arr(blood_red));
+        }
+        color_block.push(use);
+    }
+
+    let colors = [witch_purple, pumpkin_yellow, apple_green, pumpkin_orange];
+
+    let x_ind = 1
+
+    for(let i = 0; i < num_pills; i++){
+
+        for(let j = 0; j < 5; j++){
+            for(let k = 0; k < pill_depth; k++){
+                if(j == 0 && k == 0 || j == 0 && k == pill_depth - 1 || j == 4 && k == 0 || j == 4 && k == pill_depth - 1){
+                    continue;
+                }
+                color_block[j + 1][x_ind + k] = format_rgb_color_string_arr(colors[i % colors.length])
+            }
+        }
+
+        x_ind += (pill_depth + 1);
+    }
+
+}
+
+function initialize_pill_corner(){
+    let edge = 7;
+    corner_block = [];
+    for(let i = 0; i < edge; i++){
+        let use = [];
+        for(let j = 0; j < edge; j++){
+            use.push(format_rgb_color_string_arr(blood_red));
+        }
+        corner_block.push(use);
+    }
+
+    for(let i = 2; i < 5; i++){
+        for(let j = 1; j < 6; j++){
+            corner_block[i][j] = format_rgb_color_string_arr(ghost_grey)
+            corner_block[j][i] = format_rgb_color_string_arr(ghost_grey)
+        }
+    }
+
+    let eye_color = darken(apple_green)
+    corner_block[2][2] = format_rgb_color_string_arr(eye_color)
+    corner_block[2][3] = format_rgb_color_string_arr(eye_color)
+    corner_block[3][2] = format_rgb_color_string_arr(eye_color)
+    corner_block[4][3] = format_rgb_color_string_arr(eye_color)
+    corner_block[3][4] = format_rgb_color_string_arr(eye_color)
+    corner_block[4][4] = format_rgb_color_string_arr(eye_color)
+    corner_block[3][3] = format_rgb_color_string_arr(eye_color)
+
+}
 
 function draw_halloween_style_border(easel, canvas, wid, hei, size, counter){
     if(border_canvas != undefined){
