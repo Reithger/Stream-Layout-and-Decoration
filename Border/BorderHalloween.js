@@ -323,13 +323,18 @@ function draw_halloween_collage_two_backing(easel, canvas, wid, hei, size, count
     else{
         toggle = counter % (animate * 16) == 0 ? !toggle : toggle;
     }
-
+    /*
     mottle_layers(easel, wid, hei, size, 
         [witch_purple, darken_prop(witch_purple, .15), darken_prop(witch_purple, .35), darken_prop(witch_purple, .55)],
         [.2, .5, .8],
         [false, false, false],
-        [[6, 4], [6, 4], [6, 4]], 0);
+        [[6, 4], [6, 4], [6, 4]], 0);*/
 
+    mottle_layers(easel, wid, hei, size, 
+        [darken(witch_purple), witch_purple, lighten_prop(witch_purple, .25), lighten_prop(witch_purple, .45), darken_prop(pumpkin_orange, .05), darken_prop(pumpkin_orange, .15), darken_prop(pumpkin_orange, .35), darken_prop(pumpkin_orange, .55)],
+        [.1, .2, .3, .45, .55, .65, .8],
+        [false, false, false, false, false, false, false],
+        [[6, 4], [6, 4], [6, 4], [6, 4], [6, 4], [6, 4], [6, 4]], 0);
 
     let posit = counter / animate;
 
