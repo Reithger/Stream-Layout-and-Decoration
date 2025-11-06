@@ -6,13 +6,14 @@ import {color_shift_stuff} from "./BorderColorShift.js";
 import {dark_stuff} from "./BorderDarkSouls.js";
 import {pokemon_stuff} from "./BorderPokemon.js";
 import {halloween_stuff} from "./BorderHalloween.js";
+import {astral_stuff} from "./BorderAstral.js";
 
 /* counter tracks how many times the draw command has been called, used for animating*/
 let counter = 0
 
 /* Each is a function returning an object containing key values "backing", "borders", "keyword_back", "keyword_border"*/
 //let border_designs = [pokemon_stuff];
-let border_designs = [lego_stuff, flag_stuff, runescape_stuff, votv_stuff, color_shift_stuff, dark_stuff, pokemon_stuff, halloween_stuff];
+let border_designs = [astral_stuff, lego_stuff, flag_stuff, runescape_stuff, votv_stuff, color_shift_stuff, dark_stuff, pokemon_stuff, halloween_stuff];
 
 /* Calls the stream_border_draw function 30 times a second*/
 try{
@@ -497,6 +498,11 @@ export function darken_prop(color_arr, amount){
     return out;
 }
 
+export function fade_prop(color_arr, amount){  
+    let transp = color_arr.length == 3 ? 0 : color_arr[3];
+    let out = [color_arr[0], color_arr[1], color_arr[2], transp * amount + 1 * (1 - amount)];
+    return out;
+}
 
 function bounds(col){
     return col < 0 ? 0 : col > 255 ? 255 : col;
