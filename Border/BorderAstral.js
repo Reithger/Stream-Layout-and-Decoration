@@ -1,4 +1,4 @@
-import { format_rgb_color_string_arr, produce_canvas, darken_prop, fade_prop } from "./border.js";
+import { format_rgb_color_string_arr, produce_canvas, darken_prop, draw_pattern_edge, fade_prop } from "./border.js";
 
 
 export function astral_stuff(){
@@ -59,6 +59,10 @@ function draw_astral_galaxy_backing(easel, canvas, wid, hei, size, counter){
     }
     canvas.offscreenCanvas = produce_canvas(wid, hei);
 
+    if(size == null || size == undefined){
+        size = 2;
+    }
+
     let magenta = [198, 124, 185];
     let bright_purple = [203, 149, 237];
     let space_blue = [149, 166, 254];
@@ -97,7 +101,17 @@ function draw_astral_galaxy_backing(easel, canvas, wid, hei, size, counter){
 
 let border_canvas = undefined;
 
-let edge_colors = [[192, 192, 192],  [43, 43, 43]];
+let color_block = [];
+
+let corner_block = [];
+
+let silver = [192, 192, 192];
+
+let brass = [89, 65, 26];
+
+let bright_brass = [205, 194, 98];
+
+let lens_color = [244, 211, 231];
 
 function draw_astral_galaxy_border(easel, canvas, wid, hei, size, counter){
     if(border_canvas != undefined){
@@ -105,50 +119,51 @@ function draw_astral_galaxy_border(easel, canvas, wid, hei, size, counter){
         return;
     }
     border_canvas = produce_canvas(wid, hei);
+    initialize_astral_edge();
+    initialize_astral_corner();
 
-    let loc_easel = border_canvas.getContext("2d");
 
-    let gradient = easel.createLinearGradient(0, 0, wid, hei);
+    draw_pattern_edge(border_canvas, border_canvas.getContext("2d"), color_block, corner_block, wid, hei, 2, false);
+}
 
-    let amount = 1 / edge_colors.length;
+function initialize_astral_edge(){
+    let depth = 14;
+    let length = 16;
+    let default_color = format_rgb_color_string_arr(bright_brass);      //format_rgb_color_string_arr if real color
+    for(let i = 0; i < depth; i++){
+        let arr = [];
+        for(let j = 0; j < length; j++){
+            arr.push(default_color);
+        }
+        color_block.push(arr);
+    }
+    fill_array(color_block, 3, 4, 7, 9, silver);
+    fill_array(color_block, 2, 5, 9, 7, silver);
 
-    let contrast_color = deep_purple;
+    fill_array(color_block, 4, 5, 5, 7, lens_color);
+    fill_array(color_block, 3, 6, 7, 5, lens_color);
+}
 
-    let outline_thick = 1;
+function fill_array(arr, x, y, wid, hei, color){
+    for(let i = x; i < x + wid; i++){
+        for(let j = y; j < y + hei; j++){
+            arr[i][j] = format_rgb_color_string_arr(color);
+        }
+    }
+}
 
-    let border_thick = size * 2;
-
-    amount = 1 / edge_colors.length;
-
-    for(let i = 0; i < edge_colors.length; i++){
-        gradient.addColorStop(1 - amount * i, format_rgb_color_string_arr(edge_colors[i]));
-        //gradient.addColorStop(1 - amount * (i + .5), format_rgb_color_string_arr(contrast_color));
+function initialize_astral_corner(){
+    let edge = 7;
+    corner_block = [];
+    let default_color = undefined;
+    for(let i = 0; i < edge; i++){
+        let use = [];
+        for(let j = 0; j < edge; j++){
+            use.push(default_color);
+        }
+        corner_block.push(use);
     }
 
-    loc_easel.fillStyle = gradient;
-    let first_thick = border_thick;
-    loc_easel.fillRect(0, 0, wid, first_thick);
-    loc_easel.fillRect(0, hei - first_thick, wid, first_thick);
-    
-    loc_easel.fillRect(0, 0, first_thick, hei);
-    loc_easel.fillRect(wid - first_thick, 0, first_thick, hei);
-
-    gradient = easel.createLinearGradient(0, 0, wid, hei);
-
-    for(let i = 0; i < edge_colors.length; i++){
-        gradient.addColorStop(amount * i, format_rgb_color_string_arr(edge_colors[i]));
-        //gradient.addColorStop(amount * (i + .5), format_rgb_color_string_arr(contrast_color));
-    }
-
-    loc_easel.fillStyle = gradient;
-
-    loc_easel.fillRect(outline_thick, outline_thick, wid - outline_thick * 2, border_thick - 2 * outline_thick);
-    loc_easel.fillRect(outline_thick, hei - border_thick + outline_thick, wid - outline_thick * 2, border_thick - 2 * outline_thick);
-    
-    loc_easel.fillRect(outline_thick, outline_thick, border_thick - 2 * outline_thick, hei - outline_thick * 2);
-    loc_easel.fillRect(wid - border_thick + outline_thick, outline_thick, border_thick - 2 * outline_thick, hei - outline_thick * 2);
-
-    easel.drawImage(border_canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
 function random_int(range){

@@ -1,5 +1,82 @@
 import { format_rgb_color_string_arr, darken} from "./border.js";
 
+/**
+ * 
+ * Generic shape drawer; takes the usual easel/x/y to know on what and
+ * where to draw, and then takes a String grid that should represent the
+ * individual pixels of a 2D image, where each character in the String
+ * maps to a color in the color_map mapping object.
+ * 
+ * An example may be:
+ * 
+ * "111\n121\n111" or (if you use the build_grid function)
+ * "111
+ *  121
+ *  111"
+ * 
+ * as your grid, and you would have a map of:
+ * 
+ * {"1" : [122, 22, 156], "2" : [67, 22, 200]}
+ * 
+ * so that this function can fill in those colors.
+ * 
+ * We assume the shape described by 'grid' is a proper rectangle/square
+ * and is not representative of a jagged 2d structure.
+ * 
+ * @param {*} easel 
+ * @param {*} x 
+ * @param {*} y 
+ * @param {*} size
+ * @param {*} grid 
+ * @param {*} color_map 
+ * @param {*} centered 
+ */
+
+export function generic_shape(easel, x, y, size, grid, color_map, centered = false){
+    let rows = grid.split("\n");
+    let start_x = x - (centered ? Math.floor(rows[0].length / 2) * size : 0);
+    let start_y = y - (centered ? Math.floor(rows.length / 2) * size : 0);
+    for(let i = 0; i < rows.length; i++){
+        for(let j = 0; j < rows[i].length; j++){
+            let color = color_map[rows[i][j]];
+            if(color == undefined){
+                continue;
+            }
+            easel.fillStyle = format_rgb_color_string_arr(color)
+            easel.fillRect(start_x + j * size, start_y + i * size, size, size);
+        }
+    }
+}
+
+/**
+ * 
+ * Support function that is just a simple string-appender, but it's meant
+ * to be used in a way that formats your input to be in-line so you can easily
+ * visualize the 2D shape you are describing with multiple lines of \n separated
+ * strings.
+ * 
+ * Basically, let's you:
+ * 
+ * let string = ""
+ * string = build_grid(string, "111")
+ * string = build_grid(string, "121")
+ * string = build_grid(string, "111")
+ * 
+ * So that you can see the 2D representation easily.
+ * 
+ * This is just to make it easier as the programmer to input shape information in
+ * a way that is easy to debug and deal with.
+ * 
+ * @param {
+ * } grid 
+ * @param {*} next_line 
+ * @returns 
+ */
+
+export function build_grid(grid, next_line){
+    return grid + "\n" + next_line;
+}
+ 
 //---  Complex Specific Shapes   --------------------------------------------------------------
 
 /**

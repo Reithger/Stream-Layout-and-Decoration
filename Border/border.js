@@ -7,13 +7,14 @@ import {dark_stuff} from "./BorderDarkSouls.js";
 import {pokemon_stuff} from "./BorderPokemon.js";
 import {halloween_stuff} from "./BorderHalloween.js";
 import {astral_stuff} from "./BorderAstral.js";
+import {christmas_stuff} from "./BorderChristmas.js";
 
 /* counter tracks how many times the draw command has been called, used for animating*/
 let counter = 0
 
 /* Each is a function returning an object containing key values "backing", "borders", "keyword_back", "keyword_border"*/
 //let border_designs = [pokemon_stuff];
-let border_designs = [astral_stuff, lego_stuff, flag_stuff, runescape_stuff, votv_stuff, color_shift_stuff, dark_stuff, pokemon_stuff, halloween_stuff];
+let border_designs = [christmas_stuff, astral_stuff, lego_stuff, flag_stuff, runescape_stuff, votv_stuff, color_shift_stuff, dark_stuff, pokemon_stuff, halloween_stuff];
 
 /* Calls the stream_border_draw function 30 times a second*/
 try{
@@ -181,7 +182,10 @@ export function draw_border(canvas, backing_type, border_type, size){
 export function retrieve_backing_keywords(){
     let out = [];
     for(let i = 0; i < border_designs.length; i++){
-        out = out.concat([border_designs[i]()["keyword_back"]()]);
+        let loc = border_designs[i]()["keyword_back"];
+        if(loc != null && loc != undefined){
+            out = out.concat([loc()]);
+        }
     }
     return out;
 }
@@ -201,8 +205,11 @@ export function retrieve_backing_keywords(){
 
 export function retrieve_border_keywords(){
     let out = [];
-    for(let i = 0; i < border_designs.length; i++){
-        out = out.concat([border_designs[i]()["keyword_border"]()]);
+    for(let i = 0; i < border_designs.length; i++){        
+        let loc = border_designs[i]()["keyword_border"];
+        if(loc != null && loc != undefined){
+            out = out.concat([loc()]);
+        }
     }
     return out;
 }
