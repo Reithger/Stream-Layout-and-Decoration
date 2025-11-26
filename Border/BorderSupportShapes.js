@@ -34,8 +34,8 @@ import { format_rgb_color_string_arr, darken} from "./border.js";
 
 export function generic_shape(easel, x, y, size, grid, color_map, centered = false){
     let rows = grid.split("\n");
-    let start_x = x - (centered ? Math.floor(rows[0].length / 2) * size : 0);
-    let start_y = y - (centered ? Math.floor(rows.length / 2) * size : 0);
+    let start_x = x - (centered ? Math.floor(rows.length / 2) * size : 0);
+    let start_y = y - (centered ? Math.floor(rows[0].length / 2) * size : 0);
     for(let i = 0; i < rows.length; i++){
         for(let j = 0; j < rows[i].length; j++){
             let color = color_map[rows[i][j]];
@@ -46,6 +46,34 @@ export function generic_shape(easel, x, y, size, grid, color_map, centered = fal
             easel.fillRect(start_x + j * size, start_y + i * size, size, size);
         }
     }
+}
+
+/**
+ * Function to use the string input styling of 'generic_shape' for
+ * defining the 2D array used for edges and corners used by
+ * 'draw_pattern_edge'
+ * 
+ * @param {*} grid 
+ * @param {*} color_map 
+ */
+
+export function generic_border(grid, color_map){
+    let out = [];
+    let rows = grid.split("\n");
+    for(let i = 0; i < rows.length; i++){
+        let use = [];
+        for(let j = 0; j < rows[i].length; j++){
+            let color = color_map[rows[i][j]];
+            if(color == undefined){
+                use.push(undefined);
+            }
+            else{
+                use.push(format_rgb_color_string_arr(color));
+            }
+        }
+        out.push(use);
+    }
+    return out;
 }
 
 /**
@@ -74,7 +102,7 @@ export function generic_shape(easel, x, y, size, grid, color_map, centered = fal
  */
 
 export function build_grid(grid, next_line){
-    return grid + "\n" + next_line;
+    return grid + (grid == "" ? "" : "\n") + next_line;
 }
  
 //---  Complex Specific Shapes   --------------------------------------------------------------

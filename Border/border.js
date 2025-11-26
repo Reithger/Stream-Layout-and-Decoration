@@ -260,7 +260,7 @@ export function produce_canvas(wid, hei){
 export function draw_pattern_edge(canvas, easel, color_block, corner_block, wid, hei, size, asymm = true){
 
     if(color_block.length == 0){
-        console.log("Attempt to call draw_pattern_edge without any color_block pattern defined (the 2d array of the pattern copied to draw the edge)");
+        console.err("Attempt to call draw_pattern_edge without any color_block pattern defined (the 2d array of the pattern copied to draw the edge)");
         return;
     }
 
@@ -271,6 +271,7 @@ export function draw_pattern_edge(canvas, easel, color_block, corner_block, wid,
     
     let block_hei = color_block.length * size
     let block_wid = (color_block[0].length) * size
+    block_wid = block_wid < 1 ? 1 : block_wid;
     // Draws the initial segment of the edge pattern for each edge of the enclosed space
     // If I could just rotate a referenced segment of the canvas, I wouldn't have to do this four times, but it's not costly so oh well
 
@@ -279,6 +280,9 @@ export function draw_pattern_edge(canvas, easel, color_block, corner_block, wid,
 
     for(let i = 0; i < color_block.length; i++){
         for(let j = 0; j < color_block[i].length; j++){
+            if(color_block[i][j] == undefined){
+                continue;
+            }
             easel.fillStyle = color_block[i][j]
             // Top Row
             easel.fillRect(horiz_edge_buffer + corner_displacement + j * size, i * size, size, size)
@@ -299,6 +303,7 @@ export function draw_pattern_edge(canvas, easel, color_block, corner_block, wid,
     for(let i = 0; i < (wid - 2 * corner_displacement) / block_wid + 1; i += 1){
         // References its own canvas to copy the template pattern along the row
         // Top Row
+        
         let x_ref = corner_displacement + horiz_edge_buffer;
         let y_ref = 0;
         let x_tar = i * block_wid + corner_displacement;
@@ -307,7 +312,7 @@ export function draw_pattern_edge(canvas, easel, color_block, corner_block, wid,
         // Bottom Row
         x_ref =  wid - corner_displacement - block_wid - horiz_edge_buffer;
         y_ref = hei - block_hei;
-        x_tar = wid - (i) * block_wid - corner_displacement;
+        x_tar = wid - i * block_wid - corner_displacement;
         y_tar = hei - block_hei;
         easel.drawImage(canvas, x_ref, y_ref, block_wid, block_hei, x_tar, y_tar, block_wid, block_hei)
     }
@@ -328,7 +333,7 @@ export function draw_pattern_edge(canvas, easel, color_block, corner_block, wid,
         easel.drawImage(canvas, x_ref, y_ref, block_hei, block_wid, x_tar, y_tar, block_hei, block_wid)
     }
 
-    size = block_hei % corner_block.length == 0 ? Math.floor(block_hei / corner_block.length) : size;
+    size = (block_hei % corner_block.length == 0 && corner_block.length != 0) ? Math.floor(block_hei / corner_block.length) : size;
 
     draw_pattern_corners(canvas, easel, corner_block, wid, hei, size);
 }
