@@ -13,8 +13,11 @@ export function christmas_stuff(){
 
 function check_christmas_backings(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
-        case "christmas":
+        case "winterlodge":
             draw_winterlodge_backing(easel, canvas, wid, hei, size, counter);
+            return true;
+        case "christmas_wrapping_one":
+            draw_wrapping_paper_one(easel, canvas, wid, hei, size, counter);
             return true;
         default:
             return false;
@@ -22,13 +25,16 @@ function check_christmas_backings(easel, canvas, wid, hei, size, counter, keywor
 }
 
 function keywords_back(){
-    return ["christmas"];
+    return ["winterlodge", "christmas_wrapping_one"];
 }
 
 function check_christmas_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
-        case "christmas":
+        case "sweater_rg":
             draw_christmas_sweater_border(easel, canvas, wid, hei, size, counter);
+            return true;
+        case "sweater_gr":
+            draw_christmas_sweater_border_two(easel, canvas, wid, hei, size, counter);
             return true;
         default:
             return false;
@@ -36,7 +42,7 @@ function check_christmas_borders(easel, canvas, wid, hei, size, counter, keyword
 }
 
 function keywords_border(){
-    return ["christmas"];
+    return ["sweater_rg", "sweater_gr"];
 }
 
 //---  Support Data   -------------------------------------------------------------------------
@@ -63,9 +69,15 @@ let deep_freeze = [66, 104, 124];
 
 let reindeer_brown = [139, 69, 19];
 
+    //-- Normal  ----------------------------------------------
+
+let taupe = [179, 139, 109];
+
 let black = [0, 0, 0];
 
 let white = [255, 255, 255];
+
+let gold = [255, 215, 0];
 
     //-- Color Sets  ------------------------------------------
 
@@ -75,6 +87,8 @@ let colors = {"1" : santa_red, "2" : winter_green, "3" : mistletoe_red, "4" : pi
 let wreath_colors = {"1" : santa_red, "2" : pine_green, "3" : darken(stocking_green), "4" : black, "5" : reindeer_brown};
 
 let stripe_colors = {"1" : white, "2" : santa_red, "3" : stocking_green};
+
+let stripe_colors_two = {"1" : white, "2" : stocking_green, "3" : santa_red};
 
 let panelling_color = {"1" : darken_prop(reindeer_brown, .2), "2" : lighten(reindeer_brown), "3" : darken_prop(reindeer_brown, .3)}
 
@@ -109,10 +123,10 @@ function draw_winterlodge_backing(easel, canvas, wid, hei, size, counter){
     
     let mode = "normal";
 
-    if(wid < hei / 3){
+    if(wid < hei / (2.5)){
         mode = "tall";
     }
-    else if (hei < wid / 3){
+    else if (hei < wid / 2.5){
         mode = "wide";
     }
 
@@ -210,8 +224,7 @@ function draw_winterlodge_backing(easel, canvas, wid, hei, size, counter){
         let panel_size = size * 1;
         let num_panels = Math.floor(hei / (panel_size * panel_height)) + 1;
         draw_woodlog_panelling(easel, 0, 0, wid, hei, panel_height, num_panels, panel_size, panelling_color, true);
-        draw_wreath(easel, wid / 2, size * 24, size * 2, wreath_colors, true);
-
+        draw_wreath(easel, wid / 2 + size, size * 24, size * 2, wreath_colors, true);
         
         cross_screen_mottle(easel, 0, Math.floor(hei / size * 19 / 20) * size, white, icicle_blue, size, wid, 4, 2);
         cross_screen_mottle(easel, 0, Math.floor(hei / size * 19 / 20 + 4) * size, white, icicle_blue, size, wid, 4, 2);
@@ -225,18 +238,193 @@ function draw_winterlodge_backing(easel, canvas, wid, hei, size, counter){
         
         let door_height = size * (Math.floor(hei / size * 7 / 12));
         let door_wid = Math.floor(door_height * 2 / 3);
-        let door_x = size * (Math.floor(wid / size / 18));
         let door_y = panel_height * num_panels * panel_size - door_height - panel_size;
-        draw_door(easel, door_x, door_y, door_wid, door_height, size / 2, panelling_alt_color_red, panelling_alt_color_grn, roughend_color);
-        
-        draw_wreath(easel, door_x + door_wid / 2, door_y + door_height / 3, size, wreath_colors, true);
 
+        let door_x = size * (Math.floor(wid / size / 24));
+        let ind = 0;
+        while(door_x < wid){
+            draw_door(easel, door_x, door_y, door_wid, door_height, size / 2, ind % 2 == 0 ? panelling_alt_color_red : panelling_alt_color_grn, ind % 2 == 0 ? panelling_alt_color_grn : panelling_alt_color_blu, roughend_color);
+            
+            draw_wreath(easel, door_x + door_wid / 2 + size, door_y + door_height / 3, size, wreath_colors, true);
+
+            let window_x = door_x + door_wid * 1.5;
+            let window_y = door_y - door_wid / 2;
+            let window_wid = door_wid * 2.5;
+            let window_hei = door_wid * 1.5;
+            num_panels = Math.floor(window_hei / (panel_size * panel_height));
+
+            draw_woodlog_panelling(easel, window_x, window_y + size * 2, window_wid, window_hei, panel_height, num_panels, panel_size, ind % 2 == 0 ? panelling_alt_color_blu : panelling_alt_color_red, false);
+
+
+            draw_window_back(easel, window_x, window_y, window_wid, window_hei, size*1, panelling_alt_color_grn);
+        
+            draw_window_pane_overlay(easel, window_x + size * 2, window_y + size * 3, window_wid - size * 4, window_hei - size * 6, size, panelling_alt_color_grn);
+        
+
+
+            door_x += door_wid * 5;
+            ind += 1;
+        }
         cross_screen_mottle(easel, 0, Math.floor(hei / size * 17 / 20) * size, white, icicle_blue, size, wid, 4, 2);
         cross_screen_mottle(easel, 0, Math.floor(hei / size * 17 / 20 + 4) * size, white, icicle_blue, size, wid, 4, 2);
         cross_screen_mottle(easel, 0, Math.floor(hei / size * 17 / 20 + 8) * size, white, icicle_blue, size, wid, 4, 2);
     }
 
     canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+}
+
+    //--  Wrapping Papers  ------------------------------------
+
+function draw_wrapping_paper_one(easel, canvas, wid, hei, size, counter){
+    let animate = 4;
+
+    if(canvas.offscreenCanvas != undefined){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
+
+    let back_color = taupe
+
+    easel.fillStyle = format_rgb_color_string_arr(back_color);
+    easel.fillRect(0, 0, wid, hei);
+
+    let gap = size * 32;
+    let curr_x = wid / 2;
+    while(curr_x > 0){
+        curr_x -= gap;
+    }
+    let ind = 0;
+
+
+    while(curr_x < wid + size * 15){
+        draw_staggered_pattern(easel, curr_x, hei, size, lighten_prop(santa_red, .1), back_color, ind % 2 == 0);
+        curr_x += gap;
+
+        easel.fillStyle = format_rgb_color_string_arr(darken_prop(pine_green, .1));
+
+        easel.fillRect(curr_x - size * 2, 0, size * 4, hei);
+
+        let curr_y = size * 8;
+
+        while(curr_y < hei + size * 15){
+            draw_mistletoe(easel, curr_x, curr_y, size, darken_prop(pine_green, .1), santa_red, darken_prop(gold, .3));
+            curr_y += 60 * size;
+        }
+
+
+        curr_x += gap;
+
+        ind++;
+    }
+
+
+
+    canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+}
+
+function draw_mistletoe(easel, x, y, size, color_branch, color_berry, color_contrast){
+    let shape = "";
+    let use = {"1" : color_branch, "2" : color_berry, "3" : color_contrast};
+    shape = build_grid(shape, "0000000000000000000001111000000000000000000000");
+    shape = build_grid(shape, "0000000000000000000001111000000000000000000000");
+    shape = build_grid(shape, "0000000000000000000001111000000000000000000000");
+    shape = build_grid(shape, "0000000011000000000001111000000000001100000000");
+    shape = build_grid(shape, "0001110131100000000001111000000000011310111000");
+    shape = build_grid(shape, "0001311131111110000001111000000111111311131000");
+    shape = build_grid(shape, "0001131131111131000001111000001311111311311000");
+    shape = build_grid(shape, "0000113131111131111001111001111311111313110000");
+    shape = build_grid(shape, "0001111331111311113101111013111131111331111000");
+    shape = build_grid(shape, "0013333331111311113101111013111131111333333100");
+    shape = build_grid(shape, "0001111113113111113101111013111113113111111000");
+    shape = build_grid(shape, "0000111111313111131101111011311113131111110000");
+    shape = build_grid(shape, "0000011111131111131101111011311111311111100000");
+    shape = build_grid(shape, "0000111113313111131101111011311113133111110000");
+    shape = build_grid(shape, "0000011331111311131101111011311131111331100000");
+    shape = build_grid(shape, "0000133111111131311101111011131311111113310000");
+    shape = build_grid(shape, "0000011111111111311101111011131111111111100000");
+    shape = build_grid(shape, "0000001111111133311101111011133311111111000000");
+    shape = build_grid(shape, "0000000111133311131111111111311133311111000000");
+    shape = build_grid(shape, "0000000133311111113111111113111111133310000000");
+    shape = build_grid(shape, "0000000011111111111311111131111111111100000000");
+    shape = build_grid(shape, "0000000000000000001111111111000000000000000000");
+    shape = build_grid(shape, "0000000000000000000111111110000000000000000000");
+    shape = build_grid(shape, "0000000000000000000012222100000000000000000000");
+    shape = build_grid(shape, "0000000000000000000022222200000000000000000000");
+    shape = build_grid(shape, "0000000000000000000022222200000000000000000000");
+    shape = build_grid(shape, "0000000000000000000022222200000000000000000000");
+    shape = build_grid(shape, "0000000000000000000022222200000000000000000000");
+    shape = build_grid(shape, "0000000000000000000002222000000000000000000000");
+    shape = build_grid(shape, "0000000000022220000001111000000002222000000000");
+    shape = build_grid(shape, "0000000000222222000001111000000022222200000000");
+    shape = build_grid(shape, "0000000000221122000001111000000022112200000000");
+    shape = build_grid(shape, "0000000000222112000001111000000021122200000000");
+    shape = build_grid(shape, "0000000000021120000001111000000002112000000000");
+    shape = build_grid(shape, "0000000000011000000001111000000001100000000000");
+    shape = build_grid(shape, "0000002220001100000001111000000011000222000000");
+    shape = build_grid(shape, "0000022112011000000001111000000001102112200000");
+    shape = build_grid(shape, "0000022211111100000001111000000011111122200000");
+    shape = build_grid(shape, "0000022222011122200001111000022211102222200000");
+    shape = build_grid(shape, "0000002220000222220001111000222220000222000000");
+    shape = build_grid(shape, "0000000000000222220001111000222220000000000000");
+    shape = build_grid(shape, "0000000000000022210001111000122200000000000000");
+    shape = build_grid(shape, "0000000000000001011001111001101000000000000000");
+    shape = build_grid(shape, "0000000000000000101101111011010000000000000000");
+    shape = build_grid(shape, "0000000000000000011111111111100000000000000000");
+    shape = build_grid(shape, "0000000000000000000011111000000000000000000000");
+    shape = build_grid(shape, "0000000000000000000001111000000000000000000000");
+    generic_shape(easel, x, y, size, shape, use, true);
+}
+
+function draw_staggered_pattern(easel, x, hei, size, color_main, color_back, every_other = false){
+    easel.fillStyle = format_rgb_color_string_arr(color_main);
+    easel.fillRect(x, 0, size * 2, hei);
+
+    let start_y = every_other ? size * 20 : size * 20;
+
+    while(start_y + size * 13 < hei){
+        draw_staggered_circle(easel, x - size * 13, start_y, size, color_main, color_back);
+        start_y += size * 60;
+    }
+
+
+}
+
+function draw_staggered_circle(easel, x, y, size, color, color_back){
+    let use = {"1" : color, "0" : color_back, "a" : black};
+    let shape = "";
+    shape = build_grid(shape, "333333333aaaa00aaaa333333333");
+    shape = build_grid(shape, "3333333aa1111001111aa3333333");
+    shape = build_grid(shape, "33333aa11111100111111aa33333");
+    shape = build_grid(shape, "3333a111111110011111111a3333");
+    shape = build_grid(shape, "3330011111111001111111100333");
+    shape = build_grid(shape, "3300001111111001111111000033");
+    shape = build_grid(shape, "33a1000111111001111110001a33");
+    shape = build_grid(shape, "3a111000111110011111000111a3");
+    shape = build_grid(shape, "3a111100011110011110001111a3");
+    shape = build_grid(shape, "a11111100011100111000111111a");
+    shape = build_grid(shape, "a11111110001100110001111111a");
+    shape = build_grid(shape, "a11111111000100100011111111a");
+    shape = build_grid(shape, "a11111111100000000111111111a");
+    shape = build_grid(shape, "a11111111110000001111111111a");
+    shape = build_grid(shape, "0000000000000000000000000000");
+    shape = build_grid(shape, "0000000000000000000000000000");
+    shape = build_grid(shape, "a11111111110000001111111111a");
+    shape = build_grid(shape, "a11111111100000000111111111a");
+    shape = build_grid(shape, "a11111111000100100011111111a");
+    shape = build_grid(shape, "a11111110001100110001111111a");
+    shape = build_grid(shape, "a11111100011100111000111111a");
+    shape = build_grid(shape, "3a111100011110011110001111a3");
+    shape = build_grid(shape, "3a111000111110011111000111a3");
+    shape = build_grid(shape, "33a1000111111001111110001a33");
+    shape = build_grid(shape, "3300001111111001111111000033");
+    shape = build_grid(shape, "3330011111111001111111100333");
+    shape = build_grid(shape, "3333a111111110011111111a3333");
+    shape = build_grid(shape, "33333aa11111100111111aa33333");
+    shape = build_grid(shape, "3333333aa1111001111aa3333333");
+    shape = build_grid(shape, "333333333aaaa00aaaa333333333");
+
+    generic_shape(easel, x, y, size, shape, use);
 }
 
     //-- Animation Snow Fall  ---------------------------------
@@ -409,14 +597,24 @@ function draw_brick_square(easel, x, y, wid, hei, size, brick_size, brick_height
                 use_wid = use_wid < 1 ? 1 : use_wid;
             }
 
+            let base_brick_color = santa_red;
+
+            let rand = Math.random();
+            if(rand < .3){
+                base_brick_color = lighten_prop(base_brick_color, .1);
+            }
+            else if(rand > .7){
+                base_brick_color = darken_prop(base_brick_color, .1);
+            }
+
             for(let j = 0; j < use_wid; j++){
                 for(let k = 0; k < brick_height; k++){
-                    let color = santa_red;
+                    let color = base_brick_color;
                     if(k == 0 || j == 0 || j == use_wid - 1 || k == brick_height - 1){
                         color = [66, 66, 66];
                     }
                     let ran = Math.random();
-                    let ot = Math.random() / 10;
+                    let ot = Math.random() / 20;
                     if(ran > .5){
                         color = lighten_prop(color, ot);
                     }
@@ -520,14 +718,28 @@ function draw_christmas_sweater_border(easel, canvas, wid, hei, size, counter){
     }
     border_canvas = produce_canvas(wid, hei);
 
-    initialize_christmas_edge();
-    initialize_christmas_corner();
+    initialize_christmas_edge(stripe_colors);
+    initialize_christmas_corner(stripe_colors);
 
 
-    draw_pattern_edge(border_canvas, border_canvas.getContext("2d"), color_block, corner_block, wid, hei, 3, false);
+    draw_pattern_edge(border_canvas, border_canvas.getContext("2d"), color_block, corner_block, wid, hei, 2, false);
 }
 
-function initialize_christmas_edge(){
+function draw_christmas_sweater_border_two(easel, canvas, wid, hei, size, counter){
+    if(border_canvas != undefined){
+        easel.drawImage(border_canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+        return;
+    }
+    border_canvas = produce_canvas(wid, hei);
+
+    initialize_christmas_edge(stripe_colors_two);
+    initialize_christmas_corner(stripe_colors_two);
+
+
+    draw_pattern_edge(border_canvas, border_canvas.getContext("2d"), color_block, corner_block, wid, hei, 2, false);
+}
+
+function initialize_christmas_edge(pallete_choice){
     let shape = "";
     shape = build_grid(shape, "11111111111111");
     shape = build_grid(shape, "31222222222213");
@@ -537,11 +749,11 @@ function initialize_christmas_edge(){
     shape = build_grid(shape, "33122222222133");
     shape = build_grid(shape, "31222222222213");  
     shape = build_grid(shape, "11111111111111");
-    color_block = generic_border(shape, stripe_colors);
+    color_block = generic_border(shape, pallete_choice);
 
 }
 
-function initialize_christmas_corner(){
+function initialize_christmas_corner(pallete_choice){
     let shape = "";
     shape = build_grid(shape, "11111111");
     shape = build_grid(shape, "12133121");
@@ -551,5 +763,5 @@ function initialize_christmas_corner(){
     shape = build_grid(shape, "11333311");
     shape = build_grid(shape, "12133121");
     shape = build_grid(shape, "11111111");
-    corner_block = generic_border(shape, stripe_colors);
+    corner_block = generic_border(shape, pallete_choice);
 }

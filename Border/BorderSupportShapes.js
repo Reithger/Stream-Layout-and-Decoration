@@ -34,8 +34,8 @@ import { format_rgb_color_string_arr, darken} from "./border.js";
 
 export function generic_shape(easel, x, y, size, grid, color_map, centered = false){
     let rows = grid.split("\n");
-    let start_x = x - (centered ? Math.floor(rows.length / 2) * size : 0);
-    let start_y = y - (centered ? Math.floor(rows[0].length / 2) * size : 0);
+    let start_x = x - (centered ? Math.floor(rows[0].length / 2) * size : 0);
+    let start_y = y - (centered ? Math.floor(rows.length / 2) * size : 0);
     for(let i = 0; i < rows.length; i++){
         for(let j = 0; j < rows[i].length; j++){
             let color = color_map[rows[i][j]];
