@@ -123,7 +123,7 @@ function draw_winterlodge_backing(easel, canvas, wid, hei, size, counter){
     
     let mode = "normal";
 
-    if(wid < hei / (2.5)){
+    if(wid < hei / (2)){
         mode = "tall";
     }
     else if (hei < wid / 2.5){

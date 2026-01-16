@@ -1,5 +1,5 @@
 import { produce_canvas, darken_prop, lighten, lighten_prop, darken, format_rgb_color_string_arr, draw_pattern_edge} from "./border.js";
-import {draw_coral, draw_petal_imprint, draw_blot, draw_footprint_imprint, draw_cross} from "./BorderSupportShapes.js";
+import {draw_coral, generic_border, build_grid, draw_petal_imprint, draw_blot, draw_footprint_imprint, draw_cross} from "./BorderSupportShapes.js";
 import {cross_screen_vert_mottle, mottle_layers, cross_screen_mottle, cross_screen_mottle_smooth} from "./BorderSupportPattern.js";
 
 //---  Backgrounds   --------------------------------------------------------------------------
@@ -36,6 +36,9 @@ function check_pokemon_backings(easel, canvas, wid, hei, size, counter, keyword)
         case 'poke_lava':
             draw_lava_backing(easel, canvas, wid, hei, size == undefined ? 6 : size);
             return true;
+        case "cyber":
+            draw_cyber_backing(easel, canvas, wid, hei, size == undefined ? 4 : size, counter);
+            return true;
         default:
             return false;
     }
@@ -43,16 +46,22 @@ function check_pokemon_backings(easel, canvas, wid, hei, size, counter, keyword)
 
 function keywords_back(){
     return ["poke_grass", "poke_arcade", "poke_snow", "poke_foot", "poke_seafloor", "poke_beach",
-            "poke_lava"];
+            "poke_lava", "cyber"];
 }
 
 function check_pokemon_borders(easel, canvas, wid, hei, size, counter, keyword){
     switch(keyword){
         case "pokeball":
-            draw_pokeball_border(canvas, easel, wid, hei, size == undefined ? 2 : size);
+            draw_pokeball_border(canvas, easel, wid, hei, size == undefined ? 1 : size);
             return true;
         case "pokeball_halloween":
-            draw_pokeball_halloween_border(canvas, easel, wid, hei, size == undefined ? 2 : size);
+            draw_pokeball_halloween_border(canvas, easel, wid, hei, size == undefined ? 1 : size);
+            return true;
+        case "poke_arcade":
+            draw_arcade_border(canvas, easel, wid, hei, size == undefined ? 1 : size);
+            return true;
+        case "cyber":
+            draw_cyber_border(canvas, easel, wid, hei, size == undefined ? 1 : size, counter);
             return true;
         default:
             return false;
@@ -60,7 +69,75 @@ function check_pokemon_borders(easel, canvas, wid, hei, size, counter, keyword){
 }
 
 function keywords_border(){
-    return ["pokeball", "pokeball_halloween"];
+    return ["pokeball", "pokeball_halloween", "cyber"];
+}
+
+    //-- Cyber Background  ------------------------------------
+
+/*
+ Type 1 - blue background with accent rectangles/squares overlapping
+ Type 2 - Hexagons
+
+*/
+
+let cyber_blue_back = [22, 16, 130];
+
+let cyber_blue_top = [40, 190, 190];
+
+let store = [];
+
+function draw_cyber_backing(easel, canvas, wid, hei, size, counter){
+    if(canvas.offscreenCanvas != undefined && counter % 5 != 0){
+        easel.drawImage(canvas.offscreenCanvas, 0, 0);
+        return;
+    }
+    canvas.offscreenCanvas = produce_canvas(wid, hei);
+
+    easel.fillStyle = format_rgb_color_string_arr(cyber_blue_back);
+    easel.fillRect(0, 0, wid, hei);
+
+    easel.strokeStyle = format_rgb_color_string_arr(cyber_blue_top);
+    easel.fillStyle = format_rgb_color_string_arr(lighten_prop(cyber_blue_back, .25));
+
+    let dist = wid / 20 > hei / 20 ? wid / 20 : hei / 20;
+
+    let move = Math.floor((counter / 5)) % dist;
+    let temp = 0;
+    for(let i = 0; i < wid; i += dist){
+        easel.fillRect(i + move * (temp % 2 == 0 ? 1 : -1), -50 + move * (temp % 2 == 0 ? 1 : -1), 4, hei + 100);
+        temp += 1;
+    }
+    temp = 0;
+    for(let i = 0; i < hei; i += dist){
+        easel.fillRect(-50 + move * (temp % 2 == 0 ? 1 : -1), i + move * (temp % 2 == 0 ? 1 : -1), wid + 100, 4);
+        temp += 1;
+    }
+
+    if(store.length == 0){
+        for(let i = 0; i < wid * hei / 70000; i++){
+            let x = Math.random() * (wid * .9) - wid * .1;
+            let y = Math.random() * (hei * .9) - hei * .1;
+            let locWid = Math.random() * (wid - x) * .4 + wid * .4;
+            let locHei = Math.random() * (hei - y) * .3 + hei * .2;
+            store.push([x, y, locWid, locHei, darken_prop(cyber_blue_top, Math.random() * .2)]);
+        }
+    }
+
+    for(let i = 0; i < store.length; i++){
+        let use = store[i];
+        easel.strokeStyle = format_rgb_color_string_arr(use[4]);
+        for(let j = -3; j < 4; j++){
+            easel.beginPath();
+            easel.rect(use[0] + j, use[1] + j, use[2] - j * 2, use[3] - j * 2);
+            easel.stroke();
+        }
+        let col = lighten_prop(use[4], .3);
+        col.push(.1);
+        easel.fillStyle = format_rgb_color_string_arr(col);
+        easel.fillRect(use[0] + 3, use[1] + 3, use[2] - 6, use[3] - 6);
+    }
+    
+    canvas.offscreenCanvas.getContext("2d").drawImage(canvas, 0, 0, wid, hei, 0, 0, wid, hei);
 }
 
     //-- Arcade Background  -----------------------------------
@@ -630,9 +707,50 @@ let inside_color_yellow = [239, 214, 74];
 
 let outside_color_taupe = [255, 231, 148];
 
+let pallete_circuit_green = {"1" : [22, 130, 16], "2" : [210, 210, 50], "3" : [0, 0, 0]};
+
+let pallete_circuit_blue = {"1" : [22, 16, 130], "2" : [40, 190, 190], "3" : [0, 0, 0]};
+
 let border_canvas = undefined;
 
-export function draw_arcade_border(easel, canvas, wid, hei, size){
+    //-- Cyber  -----------------------------------------------
+
+function draw_cyber_border(canvas, easel, wid, hei, size){
+    if(border_canvas != undefined){
+        easel.drawImage(border_canvas, 0, 0, wid, hei, 0, 0, wid, hei);
+        return;
+    }
+    border_canvas = produce_canvas(wid, hei);
+
+    let shape = "";
+    shape = build_grid(shape, "2211111111112112");
+    shape = build_grid(shape, "1222112222211222");
+    shape = build_grid(shape, "2211221121121112");
+    shape = build_grid(shape, "1111211121112111");
+    shape = build_grid(shape, "1112111222111211");
+    shape = build_grid(shape, "2221111212221122");
+    shape = build_grid(shape, "1112211222112111");
+    shape = build_grid(shape, "3333333333333333");
+
+    color_block = generic_border(shape, pallete_circuit_blue);
+
+    shape = "";
+    shape = build_grid(shape, "11112112");
+    shape = build_grid(shape, "11212112");
+    shape = build_grid(shape, "11121112");
+    shape = build_grid(shape, "22212121");
+    shape = build_grid(shape, "11111211");
+    shape = build_grid(shape, "22222122");
+    shape = build_grid(shape, "11121211");
+
+    corner_block = generic_border(shape, pallete_circuit_blue);
+
+    draw_pattern_edge(border_canvas, border_canvas.getContext("2d"), color_block, corner_block, wid, hei, 2, false);
+}
+
+    //-- Arcade Floor Border  ---------------------------------
+
+function draw_arcade_border(easel, canvas, wid, hei, size){
     if(color_block == undefined){
         initialize_arcade_border();
         initialize_arcade_corner();

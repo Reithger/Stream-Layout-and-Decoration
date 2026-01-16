@@ -148,7 +148,7 @@ export function draw_border(canvas, backing_type, border_type, size){
 
     for(let i = 0; i < border_designs.length; i++){
         let border = border_designs[i]()["borders"];
-        if(border != null && border(easel, canvas, wid, hei, 4, counter, border_type)){
+        if(border != null && border(easel, canvas, wid, hei, 2, counter, border_type)){
             break;
         }
     }
