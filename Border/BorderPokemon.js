@@ -114,7 +114,7 @@ function draw_cyber_backing(easel, canvas, wid, hei, size, counter){
     }
 
     if(store.length == 0){
-        for(let i = 0; i < wid * hei / 70000; i++){
+        for(let i = 0; i < wid * hei / 60000; i++){
             let x = Math.random() * (wid * .9) - wid * .1;
             let y = Math.random() * (hei * .9) - hei * .1;
             let locWid = Math.random() * (wid - x) * .4 + wid * .4;
@@ -131,8 +131,8 @@ function draw_cyber_backing(easel, canvas, wid, hei, size, counter){
             easel.rect(use[0] + j, use[1] + j, use[2] - j * 2, use[3] - j * 2);
             easel.stroke();
         }
-        let col = lighten_prop(use[4], .3);
-        col.push(.1);
+        let col = lighten_prop(use[4], Math.abs(Math.sin((counter / 30) * Math.PI / 2.0) * .3));
+        col.push(.2);
         easel.fillStyle = format_rgb_color_string_arr(col);
         easel.fillRect(use[0] + 3, use[1] + 3, use[2] - 6, use[3] - 6);
     }
